@@ -1,4 +1,4 @@
-# Kodukraam UX Wireframes (MVP)
+# Lokal UX Wireframes (MVP)
 
 Mobile-first screens. Warm Scandinavian feel: forest green, beige, white, dark gray.
 
@@ -6,10 +6,10 @@ Mobile-first screens. Warm Scandinavian feel: forest green, beige, white, dark g
 
 ```text
 ┌─────────────────────────────┐
-│ Kodukraam            (user) │
+│ Lokal            (user) │
 ├─────────────────────────────┤
-│ Kodukraam                   │
-│ Otse tegijalt. Otse koju.   │
+│ Lokal                   │
+│ From nearby.   │
 │ ┌─────────────────────────┐ │
 │ │ 🔍 Otsi maasikaid…      │ │
 │ └─────────────────────────┘ │
@@ -58,8 +58,8 @@ Mobile-first screens. Warm Scandinavian feel: forest green, beige, white, dark g
 
 ```text
 ┌─────────────────────────────┐
-│ Kodukraam                   │
-│ Otse tegijalt. Otse koju.   │
+│ Lokal                   │
+│ From nearby.   │
 │ [Sisselogimine*][Registreeru]│
 │ E-post                      │
 │ Parool                      │

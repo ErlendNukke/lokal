@@ -1,11 +1,11 @@
 import 'package:flutter_map/flutter_map.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/services/marketplace_service.dart';
-import 'package:kodukraam/theme/app_theme.dart';
-import 'package:kodukraam/widgets/product_card.dart';
-import 'package:kodukraam/core/config.dart';
-import 'package:kodukraam/screens/product_screen.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/product_card.dart';
+import 'package:lokal/core/config.dart';
+import 'package:lokal/screens/product_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,10 +72,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kodukraam')),
+      appBar: AppBar(title: const Text('Lokal')),
       body: RefreshIndicator(
         onRefresh: _load,
-        color: KodukraamColors.forest,
+        color: LokalColors.forest,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
@@ -108,9 +108,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
                           setState(() => _category = c.key);
                           _load();
                         },
-                        selectedColor: KodukraamColors.forest,
+                        selectedColor: LokalColors.forest,
                         labelStyle: TextStyle(
-                          color: _category == c.key ? Colors.white : KodukraamColors.ink,
+                          color: _category == c.key ? Colors.white : LokalColors.ink,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -122,7 +122,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Text('Raadius', style: TextStyle(color: KodukraamColors.muted, fontWeight: FontWeight.w600)),
+                const Text('Raadius', style: TextStyle(color: LokalColors.muted, fontWeight: FontWeight.w600)),
                 const SizedBox(width: 8),
                 for (final km in radiusOptions)
                   Padding(
@@ -134,9 +134,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
                         setState(() => _radiusKm = km);
                         _load();
                       },
-                      selectedColor: KodukraamColors.forest,
+                      selectedColor: LokalColors.forest,
                       labelStyle: TextStyle(
-                        color: _radiusKm == km ? Colors.white : KodukraamColors.ink,
+                        color: _radiusKm == km ? Colors.white : LokalColors.ink,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -158,7 +158,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                   children: [
                     TileLayer(
                       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'ee.kodukraam.app',
+                      userAgentPackageName: 'ee.lokal.app',
                     ),
                     MarkerLayer(
                       markers: [
@@ -171,7 +171,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                               onTap: () => _openProduct(p),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: KodukraamColors.forest,
+                                  color: LokalColors.forest,
                                   shape: BoxShape.circle,
                                   border: Border.all(color: Colors.white, width: 2),
                                   boxShadow: const [
@@ -191,7 +191,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
             Text('Lähedal', style: brandTitle(size: 24)),
             Text(
               _loading ? 'Laen…' : '${_products.length} toodet · $_radiusKm km raadiuses',
-              style: const TextStyle(color: KodukraamColors.muted),
+              style: const TextStyle(color: LokalColors.muted),
             ),
             const SizedBox(height: 12),
             if (_loading)
@@ -200,10 +200,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (_error != null)
-              Text(_error!, style: const TextStyle(color: KodukraamColors.danger))
+              Text(_error!, style: const TextStyle(color: LokalColors.danger))
             else if (_products.isEmpty)
               const Text('Selles raadiuses tooteid ei leitud. Proovi suuremat raadiust.',
-                  style: TextStyle(color: KodukraamColors.muted))
+                  style: TextStyle(color: LokalColors.muted))
             else
               ..._products.asMap().entries.map(
                     (e) => Padding(

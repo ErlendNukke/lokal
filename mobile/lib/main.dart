@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:kodukraam/screens/home_shell.dart';
-import 'package:kodukraam/services/api_client.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/services/marketplace_service.dart';
-import 'package:kodukraam/theme/app_theme.dart';
+import 'package:lokal/screens/home_shell.dart';
+import 'package:lokal/services/api_client.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 String resolveApiBaseUrl() {
@@ -32,20 +32,20 @@ Future<void> main() async {
         ChangeNotifierProvider.value(value: auth),
         Provider(create: (_) => MarketplaceService(api)),
       ],
-      child: const KodukraamApp(),
+      child: const LokalApp(),
     ),
   );
 }
 
-class KodukraamApp extends StatelessWidget {
-  const KodukraamApp({super.key});
+class LokalApp extends StatelessWidget {
+  const LokalApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kodukraam',
+      title: 'Lokal',
       debugShowCheckedModeBanner: false,
-      theme: buildKodukraamTheme(),
+      theme: buildLokalTheme(),
       home: const _BootGate(),
     );
   }

@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/screens/auth_screen.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/services/marketplace_service.dart';
-import 'package:kodukraam/theme/app_theme.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/screens/auth_screen.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -146,7 +146,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         Center(
                           child: Text(
                             'Tellimusi pole veel. Avasta kohalikke tooteid!',
-                            style: TextStyle(color: KodukraamColors.muted),
+                            style: TextStyle(color: LokalColors.muted),
                           ),
                         ),
                       ],
@@ -183,19 +183,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           Text(o.productName, style: brandTitle(size: 18)),
                                           Text(
                                             '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)} · ${o.totalPrice.toStringAsFixed(2)} €',
-                                            style: const TextStyle(color: KodukraamColors.muted),
+                                            style: const TextStyle(color: LokalColors.muted),
                                           ),
                                           Text(
                                             o.fulfillment == FulfillmentType.pickup
                                                 ? 'Järeletulemine'
                                                 : 'Kohaletoimetamine',
-                                            style: const TextStyle(color: KodukraamColors.muted),
+                                            style: const TextStyle(color: LokalColors.muted),
                                           ),
                                           const SizedBox(height: 6),
                                           Chip(
                                             label: Text(orderStatusApi(o.status)),
                                             visualDensity: VisualDensity.compact,
-                                            backgroundColor: KodukraamColors.beige,
+                                            backgroundColor: LokalColors.beige,
                                           ),
                                           if (o.message != null)
                                             Text('„${o.message}”', style: const TextStyle(fontStyle: FontStyle.italic)),

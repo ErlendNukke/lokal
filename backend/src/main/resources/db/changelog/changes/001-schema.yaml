@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 001-users
-      author: kodukraam
+      author: lokal
       changes:
         - createTable:
             tableName: users
@@ -21,7 +21,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 001-producer-profiles
-      author: kodukraam
+      author: lokal
       changes:
         - createTable:
             tableName: producer_profiles
@@ -45,7 +45,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 001-products
-      author: kodukraam
+      author: lokal
       changes:
         - createTable:
             tableName: products
@@ -86,7 +86,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 001-product-photos
-      author: kodukraam
+      author: lokal
       changes:
         - createTable:
             tableName: product_photos
@@ -104,7 +104,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 001-orders
-      author: kodukraam
+      author: lokal
       changes:
         - createTable:
             tableName: orders
@@ -141,7 +141,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 001-reviews
-      author: kodukraam
+      author: lokal
       changes:
         - createTable:
             tableName: reviews

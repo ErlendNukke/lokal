@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/services/api_client.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/services/api_client.dart';
 
 class MarketplaceService {
   MarketplaceService(this._api);

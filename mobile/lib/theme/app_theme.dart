@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class KodukraamColors {
+class LokalColors {
   static const forest = Color(0xFF2F5D50);
   static const forestDark = Color(0xFF1F3F36);
   static const forestSoft = Color(0xFF3F7A68);
@@ -15,46 +15,46 @@ class KodukraamColors {
   static const warning = Color(0xFFC47B2D);
 }
 
-ThemeData buildKodukraamTheme() {
+ThemeData buildLokalTheme() {
   final base = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: KodukraamColors.forest,
-      primary: KodukraamColors.forest,
-      secondary: KodukraamColors.warning,
-      surface: KodukraamColors.cream,
+      seedColor: LokalColors.forest,
+      primary: LokalColors.forest,
+      secondary: LokalColors.warning,
+      surface: LokalColors.cream,
       brightness: Brightness.light,
     ),
-    scaffoldBackgroundColor: KodukraamColors.cream,
+    scaffoldBackgroundColor: LokalColors.cream,
   );
 
   return base.copyWith(
     textTheme: GoogleFonts.sourceSans3TextTheme(base.textTheme).apply(
-      bodyColor: KodukraamColors.ink,
-      displayColor: KodukraamColors.ink,
+      bodyColor: LokalColors.ink,
+      displayColor: LokalColors.ink,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: KodukraamColors.cream.withValues(alpha: 0.94),
-      foregroundColor: KodukraamColors.ink,
+      backgroundColor: LokalColors.cream.withValues(alpha: 0.94),
+      foregroundColor: LokalColors.ink,
       elevation: 0,
       centerTitle: false,
       titleTextStyle: GoogleFonts.fraunces(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: KodukraamColors.forestDark,
+        color: LokalColors.forestDark,
       ),
     ),
     chipTheme: base.chipTheme.copyWith(
-      selectedColor: KodukraamColors.forest,
+      selectedColor: LokalColors.forest,
       backgroundColor: Colors.white.withValues(alpha: 0.75),
-      side: const BorderSide(color: KodukraamColors.border),
+      side: const BorderSide(color: LokalColors.border),
       labelStyle: const TextStyle(fontWeight: FontWeight.w600),
       showCheckmark: false,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: KodukraamColors.forest,
+        backgroundColor: LokalColors.forest,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(48),
         shape: const StadiumBorder(),
@@ -63,9 +63,9 @@ ThemeData buildKodukraamTheme() {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: KodukraamColors.ink,
+        foregroundColor: LokalColors.ink,
         minimumSize: const Size.fromHeight(48),
-        side: const BorderSide(color: KodukraamColors.border),
+        side: const BorderSide(color: LokalColors.border),
         shape: const StadiumBorder(),
         textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
       ),
@@ -75,21 +75,21 @@ ThemeData buildKodukraamTheme() {
       fillColor: Colors.white.withValues(alpha: 0.85),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: KodukraamColors.border),
+        borderSide: const BorderSide(color: LokalColors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: KodukraamColors.border),
+        borderSide: const BorderSide(color: LokalColors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: KodukraamColors.forest, width: 1.5),
+        borderSide: const BorderSide(color: LokalColors.forest, width: 1.5),
       ),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
-      selectedItemColor: KodukraamColors.forest,
-      unselectedItemColor: KodukraamColors.muted,
+      selectedItemColor: LokalColors.forest,
+      unselectedItemColor: LokalColors.muted,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
     ),
@@ -98,7 +98,7 @@ ThemeData buildKodukraamTheme() {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: KodukraamColors.border),
+        side: const BorderSide(color: LokalColors.border),
       ),
     ),
   );
@@ -107,6 +107,6 @@ ThemeData buildKodukraamTheme() {
 TextStyle brandTitle({double size = 32}) => GoogleFonts.fraunces(
       fontSize: size,
       fontWeight: FontWeight.w700,
-      color: KodukraamColors.forestDark,
+      color: LokalColors.forestDark,
       letterSpacing: -0.4,
     );

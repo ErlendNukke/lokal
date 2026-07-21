@@ -7,6 +7,6 @@ RUN apt-get update && apt-get install -y maven && mvn -q -DskipTests package
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/kodukraam-api-*.jar app.jar
+COPY --from=build /app/target/lokal-api-*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]

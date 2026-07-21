@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kodukraam/core/config.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/services/marketplace_service.dart';
-import 'package:kodukraam/theme/app_theme.dart';
-import 'package:kodukraam/widgets/product_card.dart';
+import 'package:lokal/core/config.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 class ProducerScreen extends StatefulWidget {
@@ -231,7 +231,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
           if (_loading)
             const Center(child: CircularProgressIndicator())
           else if (_products.isEmpty)
-            const Text('Tooteid pole. Lisa esimene!', style: TextStyle(color: KodukraamColors.muted))
+            const Text('Tooteid pole. Lisa esimene!', style: TextStyle(color: LokalColors.muted))
           else
             ..._products.map(
               (p) => ListTile(
@@ -239,13 +239,13 @@ class _ProducerScreenState extends State<ProducerScreen> {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: p.photo.isEmpty
-                      ? Container(width: 56, height: 56, color: KodukraamColors.beigeDeep)
+                      ? Container(width: 56, height: 56, color: LokalColors.beigeDeep)
                       : CachedNetworkImage(imageUrl: p.photo, width: 56, height: 56, fit: BoxFit.cover),
                 ),
                 title: Text(p.name),
                 subtitle: Text('${p.price.toStringAsFixed(2)} € / ${unitApi(p.unit)} · ${p.quantity} saadaval'),
                 trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: KodukraamColors.danger),
+                  icon: const Icon(Icons.delete_outline, color: LokalColors.danger),
                   onPressed: () => _remove(p),
                 ),
               ),

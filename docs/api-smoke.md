@@ -10,7 +10,7 @@ curl -s "http://localhost:8080/api/products?lat=59.437&lng=24.7536&radiusKm=20" 
 # Login as buyer
 TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"email":"anna@kodukraam.ee","password":"password123"}' | jq -r .token)
+  -d '{"email":"anna@lokal.app","password":"password123"}' | jq -r .token)
 
 # Place order
 curl -s -X POST http://localhost:8080/api/orders \

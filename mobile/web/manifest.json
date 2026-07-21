@@ -1,6 +1,6 @@
 {
-    "name": "kodukraam",
-    "short_name": "kodukraam",
+    "name": "lokal",
+    "short_name": "lokal",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

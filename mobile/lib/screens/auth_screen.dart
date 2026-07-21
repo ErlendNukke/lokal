@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kodukraam/core/config.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/theme/app_theme.dart';
-import 'package:kodukraam/widgets/product_card.dart';
+import 'package:lokal/core/config.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -83,15 +83,15 @@ class _AuthScreenState extends State<AuthScreen> {
                 label: const Text('Sisselogimine'),
                 selected: !_register,
                 onSelected: (_) => setState(() => _register = false),
-                selectedColor: KodukraamColors.forest,
-                labelStyle: TextStyle(color: !_register ? Colors.white : KodukraamColors.ink),
+                selectedColor: LokalColors.forest,
+                labelStyle: TextStyle(color: !_register ? Colors.white : LokalColors.ink),
               ),
               ChoiceChip(
                 label: const Text('Registreeru'),
                 selected: _register,
                 onSelected: (_) => setState(() => _register = true),
-                selectedColor: KodukraamColors.forest,
-                labelStyle: TextStyle(color: _register ? Colors.white : KodukraamColors.ink),
+                selectedColor: LokalColors.forest,
+                labelStyle: TextStyle(color: _register ? Colors.white : LokalColors.ink),
               ),
             ],
           ),
@@ -127,7 +127,7 @@ class _AuthScreenState extends State<AuthScreen> {
           ],
           if (_error != null) ...[
             const SizedBox(height: 12),
-            Text(_error!, style: const TextStyle(color: KodukraamColors.danger)),
+            Text(_error!, style: const TextStyle(color: LokalColors.danger)),
           ],
           const SizedBox(height: 16),
           FilledButton(
@@ -153,15 +153,15 @@ class _AuthScreenState extends State<AuthScreen> {
             child: const Text("Jätka Google'iga (demo)"),
           ),
           const SizedBox(height: 24),
-          const Text('Demo kontod (parool: password123)', style: TextStyle(color: KodukraamColors.muted)),
+          const Text('Demo kontod (parool: password123)', style: TextStyle(color: LokalColors.muted)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              ActionChip(label: const Text('Ostja · Anna'), onPressed: () => _fillDemo('anna@kodukraam.ee')),
-              ActionChip(label: const Text('Tootja · Mari'), onPressed: () => _fillDemo('mari@kodukraam.ee')),
-              ActionChip(label: const Text('Tootja · Jüri'), onPressed: () => _fillDemo('juri@kodukraam.ee')),
+              ActionChip(label: const Text('Ostja · Anna'), onPressed: () => _fillDemo('anna@lokal.app')),
+              ActionChip(label: const Text('Tootja · Mari'), onPressed: () => _fillDemo('mari@lokal.app')),
+              ActionChip(label: const Text('Tootja · Jüri'), onPressed: () => _fillDemo('juri@lokal.app')),
             ],
           ),
         ],

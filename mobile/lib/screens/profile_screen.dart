@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/screens/auth_screen.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/widgets/product_card.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/screens/auth_screen.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {

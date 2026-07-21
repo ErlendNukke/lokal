@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/services/api_client.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/services/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService extends ChangeNotifier {
@@ -17,8 +17,8 @@ class AuthService extends ChangeNotifier {
 
   Future<void> bootstrap() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('kk_token');
-    final rawUser = prefs.getString('kk_user');
+    final token = prefs.getString('lokal_token');
+    final rawUser = prefs.getString('lokal_user');
     if (token != null && rawUser != null) {
       _api.token = token;
       user = User.fromJson(jsonDecode(rawUser) as Map<String, dynamic>);
@@ -87,7 +87,7 @@ class AuthService extends ChangeNotifier {
     final json = await _api.request<Map<String, dynamic>>('GET', '/api/auth/me');
     user = User.fromJson(json);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('kk_user', jsonEncode(json));
+    await prefs.setString('lokal_user', jsonEncode(json));
     notifyListeners();
   }
 
@@ -95,7 +95,7 @@ class AuthService extends ChangeNotifier {
     final json = await _api.request<Map<String, dynamic>>('PUT', '/api/auth/me', body: body);
     user = User.fromJson(json);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('kk_user', jsonEncode(json));
+    await prefs.setString('lokal_user', jsonEncode(json));
     notifyListeners();
   }
 
@@ -103,8 +103,8 @@ class AuthService extends ChangeNotifier {
     _api.token = null;
     user = null;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('kk_token');
-    await prefs.remove('kk_user');
+    await prefs.remove('lokal_token');
+    await prefs.remove('lokal_user');
     notifyListeners();
   }
 
@@ -114,8 +114,8 @@ class AuthService extends ChangeNotifier {
     _api.token = token;
     user = User.fromJson(userJson);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('kk_token', token);
-    await prefs.setString('kk_user', jsonEncode(userJson));
+    await prefs.setString('lokal_token', token);
+    await prefs.setString('lokal_user', jsonEncode(userJson));
     notifyListeners();
   }
 }

@@ -1,6 +1,6 @@
-# Kodukraam Flutter app
+# Lokal Flutter app
 
-Native iOS / Android (and Web) client for the Kodukraam marketplace.
+Native iOS / Android (and Web) client for the Lokal marketplace.
 
 ## Run
 

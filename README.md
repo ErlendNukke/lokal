@@ -1,8 +1,8 @@
-# Kodukraam
+# Lokal
 
-**Otse tegijalt. Otse koju.**
+**From nearby.**
 
-Mobile-first marketplace MVP connecting Estonian local producers with nearby customers.
+Mobile-first marketplace MVP connecting local producers with nearby customers.
 
 ## Stack
 
@@ -47,9 +47,9 @@ Password: `password123`
 
 | Email | Role |
 |-------|------|
-| `anna@kodukraam.ee` | Buyer |
-| `mari@kodukraam.ee` | Producer + buyer |
-| `juri@kodukraam.ee` | Producer |
+| `anna@lokal.app` | Buyer |
+| `mari@lokal.app` | Producer + buyer |
+| `juri@lokal.app` | Producer |
 
 ## App features
 

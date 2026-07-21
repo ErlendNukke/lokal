@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:kodukraam/core/config.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/screens/auth_screen.dart';
-import 'package:kodukraam/services/auth_service.dart';
-import 'package:kodukraam/services/marketplace_service.dart';
-import 'package:kodukraam/theme/app_theme.dart';
+import 'package:lokal/core/config.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/screens/auth_screen.dart';
+import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -105,7 +105,7 @@ class _ProductScreenState extends State<ProductScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!, style: const TextStyle(color: KodukraamColors.danger)))
+              ? Center(child: Text(_error!, style: const TextStyle(color: LokalColors.danger)))
               : ListView(
                   children: [
                     if (product!.photo.isNotEmpty)
@@ -114,7 +114,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         child: CachedNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
                       )
                     else
-                      Container(height: 220, color: KodukraamColors.beigeDeep),
+                      Container(height: 220, color: LokalColors.beigeDeep),
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -127,21 +127,21 @@ class _ProductScreenState extends State<ProductScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 18,
-                              color: KodukraamColors.forestDark,
+                              color: LokalColors.forestDark,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             '${product.producer.farmName} · ★ ${product.producer.ratingAvg.toStringAsFixed(1)} '
                             '(${product.producer.ratingCount}) · ${product.distanceKm?.toStringAsFixed(1) ?? '—'} km',
-                            style: const TextStyle(color: KodukraamColors.muted),
+                            style: const TextStyle(color: LokalColors.muted),
                           ),
                           const SizedBox(height: 12),
                           Text(product.description ?? ''),
                           const SizedBox(height: 8),
                           Text(
                             'Saadaval: ${product.quantity} ${unitApi(product.unit)} · ${product.locationLabel ?? 'Eesti'}',
-                            style: const TextStyle(color: KodukraamColors.muted),
+                            style: const TextStyle(color: LokalColors.muted),
                           ),
                           const SizedBox(height: 24),
                           Text('Telli', style: brandTitle(size: 22)),
@@ -189,7 +189,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           Text('Arvustused', style: brandTitle(size: 22)),
                           const SizedBox(height: 8),
                           if (_reviews.isEmpty)
-                            const Text('Arvustusi veel pole.', style: TextStyle(color: KodukraamColors.muted))
+                            const Text('Arvustusi veel pole.', style: TextStyle(color: LokalColors.muted))
                           else
                             ..._reviews.map(
                               (r) => ListTile(

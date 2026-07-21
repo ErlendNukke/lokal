@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kodukraam/screens/browse_screen.dart';
-import 'package:kodukraam/screens/orders_screen.dart';
-import 'package:kodukraam/screens/producer_screen.dart';
-import 'package:kodukraam/screens/profile_screen.dart';
-import 'package:kodukraam/services/auth_service.dart';
+import 'package:lokal/screens/browse_screen.dart';
+import 'package:lokal/screens/orders_screen.dart';
+import 'package:lokal/screens/producer_screen.dart';
+import 'package:lokal/screens/profile_screen.dart';
+import 'package:lokal/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class HomeShell extends StatefulWidget {

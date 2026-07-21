@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:kodukraam/models/models.dart';
-import 'package:kodukraam/theme/app_theme.dart';
+import 'package:lokal/models/models.dart';
+import 'package:lokal/theme/app_theme.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({super.key, required this.product, required this.onTap, this.delay = 0});
@@ -27,10 +27,10 @@ class ProductCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: KodukraamColors.border),
+            border: Border.all(color: LokalColors.border),
             boxShadow: [
               BoxShadow(
-                color: KodukraamColors.forest.withValues(alpha: 0.08),
+                color: LokalColors.forest.withValues(alpha: 0.08),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -44,7 +44,7 @@ class ProductCard extends StatelessWidget {
                 child: AspectRatio(
                   aspectRatio: 16 / 11,
                   child: product.photo.isEmpty
-                      ? Container(color: KodukraamColors.beigeDeep)
+                      ? Container(color: LokalColors.beigeDeep)
                       : CachedNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
                 ),
               ),
@@ -57,13 +57,13 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${product.producer.farmName} · ${product.distanceKm?.toStringAsFixed(1) ?? '—'} km',
-                      style: const TextStyle(color: KodukraamColors.muted),
+                      style: const TextStyle(color: LokalColors.muted),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       '${product.price.toStringAsFixed(2)} € / ${unitApi(product.unit)}',
                       style: const TextStyle(
-                        color: KodukraamColors.forestDark,
+                        color: LokalColors.forestDark,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -79,7 +79,7 @@ class ProductCard extends StatelessWidget {
 }
 
 class BrandHeader extends StatelessWidget {
-  const BrandHeader({super.key, this.subtitle = 'Otse tegijalt. Otse koju.'});
+  const BrandHeader({super.key, this.subtitle = 'From nearby.'});
 
   final String subtitle;
 
@@ -98,9 +98,9 @@ class BrandHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Kodukraam', style: brandTitle(size: 34)),
+            Text('Lokal', style: brandTitle(size: 34)),
             const SizedBox(height: 4),
-            Text(subtitle, style: const TextStyle(color: KodukraamColors.muted, fontSize: 16)),
+            Text(subtitle, style: const TextStyle(color: LokalColors.muted, fontSize: 16)),
           ],
         ),
       ),

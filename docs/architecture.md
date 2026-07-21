@@ -1,10 +1,10 @@
-# Kodukraam MVP Architecture
+# Lokal MVP Architecture
 
 ## Product
 
-**Kodukraam** ("home goods") is a mobile-first marketplace connecting Estonian local producers with nearby buyers.
+**Lokal** ("home goods") is a mobile-first marketplace connecting local producers with nearby buyers.
 
-Tagline: *Otse tegijalt. Otse koju.*
+Tagline: *From nearby.*
 
 ## Goals for MVP
 

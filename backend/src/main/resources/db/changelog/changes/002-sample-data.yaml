@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 002-sample-users
-      author: kodukraam
+      author: lokal
       changes:
         # password for all demo users: password123 (BCrypt)
         - insert:
@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: '11111111-1111-1111-1111-111111111101' }
               - column: { name: name, value: 'Mari Tamm' }
-              - column: { name: email, value: 'mari@kodukraam.ee' }
+              - column: { name: email, value: 'mari@lokal.app' }
               - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
               - column: { name: role, value: BOTH }
               - column: { name: latitude, valueNumeric: 59.4370 }
@@ -23,7 +23,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: '11111111-1111-1111-1111-111111111102' }
               - column: { name: name, value: 'Jüri Saare' }
-              - column: { name: email, value: 'juri@kodukraam.ee' }
+              - column: { name: email, value: 'juri@lokal.app' }
               - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
               - column: { name: role, value: PRODUCER }
               - column: { name: latitude, valueNumeric: 58.3780 }
@@ -37,7 +37,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: '11111111-1111-1111-1111-111111111103' }
               - column: { name: name, value: 'Liisa Kask' }
-              - column: { name: email, value: 'liisa@kodukraam.ee' }
+              - column: { name: email, value: 'liisa@lokal.app' }
               - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
               - column: { name: role, value: PRODUCER }
               - column: { name: latitude, valueNumeric: 59.4370 }
@@ -51,7 +51,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: '11111111-1111-1111-1111-111111111104' }
               - column: { name: name, value: 'Anna Mets' }
-              - column: { name: email, value: 'anna@kodukraam.ee' }
+              - column: { name: email, value: 'anna@lokal.app' }
               - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
               - column: { name: role, value: BUYER }
               - column: { name: latitude, valueNumeric: 59.4250 }
@@ -63,7 +63,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 002-sample-producers
-      author: kodukraam
+      author: lokal
       changes:
         - insert:
             tableName: producer_profiles
@@ -107,7 +107,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 002-sample-products
-      author: kodukraam
+      author: lokal
       changes:
         - insert:
             tableName: products
@@ -226,7 +226,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 002-sample-photos
-      author: kodukraam
+      author: lokal
       changes:
         - insert:
             tableName: product_photos
