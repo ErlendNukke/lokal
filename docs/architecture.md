@@ -16,14 +16,13 @@ Tagline: *Otse tegijalt. Otse koju.*
 
 | Layer | Choice |
 |-------|--------|
-| Mobile UI | Angular 20 + Ionic 8 |
-| UI extras | Angular Material (installed), Ionic components primary |
+| Mobile UI | Flutter (iOS, Android, Web) |
 | API | Spring Boot 3.4 / Java 21 |
 | DB | PostgreSQL (prod) / H2 in-memory (dev) |
 | Migrations | Liquibase |
 | Auth | Spring Security + JWT (Google stub ready) |
 | Images | Local uploads now; S3/MinIO-compatible interface next |
-| Maps | OpenStreetMap + Leaflet |
+| Maps | OpenStreetMap + flutter_map |
 
 ## High-level flow
 
@@ -46,7 +45,8 @@ Buyer                    API                     Producer
 - `service` — auth, products, orders, reviews, storage
 - `web` — REST controllers under `/api`
 
-### Frontend (`/frontend`)
+### Frontend (`/mobile`)
+- Flutter app for iOS, Android, and Web
 - Browse (map + feed + categories + radius)
 - Product detail + order
 - Auth (email + Google demo)

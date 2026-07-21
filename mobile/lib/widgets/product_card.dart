@@ -1,0 +1,109 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:kodukraam/models/models.dart';
+import 'package:kodukraam/theme/app_theme.dart';
+
+class ProductCard extends StatelessWidget {
+  const ProductCard({super.key, required this.product, required this.onTap, this.delay = 0});
+
+  final Product product;
+  final VoidCallback onTap;
+  final int delay;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: 420 + delay),
+      curve: Curves.easeOut,
+      builder: (context, value, child) => Opacity(
+        opacity: value,
+        child: Transform.translate(offset: Offset(0, 10 * (1 - value)), child: child),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: KodukraamColors.border),
+            boxShadow: [
+              BoxShadow(
+                color: KodukraamColors.forest.withValues(alpha: 0.08),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                child: AspectRatio(
+                  aspectRatio: 16 / 11,
+                  child: product.photo.isEmpty
+                      ? Container(color: KodukraamColors.beigeDeep)
+                      : CachedNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(product.name, style: brandTitle(size: 17), maxLines: 2, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${product.producer.farmName} · ${product.distanceKm?.toStringAsFixed(1) ?? '—'} km',
+                      style: const TextStyle(color: KodukraamColors.muted),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${product.price.toStringAsFixed(2)} € / ${unitApi(product.unit)}',
+                      style: const TextStyle(
+                        color: KodukraamColors.forestDark,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BrandHeader extends StatelessWidget {
+  const BrandHeader({super.key, this.subtitle = 'Otse tegijalt. Otse koju.'});
+
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeOut,
+      builder: (context, value, child) => Opacity(
+        opacity: value,
+        child: Transform.translate(offset: Offset(0, 6 * (1 - value)), child: child),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Kodukraam', style: brandTitle(size: 34)),
+            const SizedBox(height: 4),
+            Text(subtitle, style: const TextStyle(color: KodukraamColors.muted, fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -11,13 +11,23 @@ backend/.mvn/wrapper/maven-wrapper.jar
 backend/uploads/
 
 # Frontend
-frontend/node_modules/
-frontend/www/
-frontend/dist/
-frontend/.angular/
-frontend/ios/
-frontend/android/
 
 # Env
 .env
 *.log
+
+# Flutter
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/.pub-cache/
+mobile/.pub/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/app/debug/
+mobile/android/app/profile/
+mobile/android/app/release/
