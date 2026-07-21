@@ -1,0 +1,272 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-sample-users
+      author: kodukraam
+      changes:
+        # password for all demo users: password123 (BCrypt)
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: '11111111-1111-1111-1111-111111111101' }
+              - column: { name: name, value: 'Mari Tamm' }
+              - column: { name: email, value: 'mari@kodukraam.ee' }
+              - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
+              - column: { name: role, value: BOTH }
+              - column: { name: latitude, valueNumeric: 59.4370 }
+              - column: { name: longitude, valueNumeric: 24.7536 }
+              - column: { name: city, value: Tallinn }
+              - column: { name: auth_provider, value: LOCAL }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+              - column: { name: updated_at, valueDate: '2026-03-01T10:00:00' }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: '11111111-1111-1111-1111-111111111102' }
+              - column: { name: name, value: 'Jüri Saare' }
+              - column: { name: email, value: 'juri@kodukraam.ee' }
+              - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
+              - column: { name: role, value: PRODUCER }
+              - column: { name: latitude, valueNumeric: 58.3780 }
+              - column: { name: longitude, valueNumeric: 26.7290 }
+              - column: { name: city, value: Tartu }
+              - column: { name: auth_provider, value: LOCAL }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+              - column: { name: updated_at, valueDate: '2026-03-01T10:00:00' }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: '11111111-1111-1111-1111-111111111103' }
+              - column: { name: name, value: 'Liisa Kask' }
+              - column: { name: email, value: 'liisa@kodukraam.ee' }
+              - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
+              - column: { name: role, value: PRODUCER }
+              - column: { name: latitude, valueNumeric: 59.4370 }
+              - column: { name: longitude, valueNumeric: 24.7536 }
+              - column: { name: city, value: Tallinn }
+              - column: { name: auth_provider, value: LOCAL }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+              - column: { name: updated_at, valueDate: '2026-03-01T10:00:00' }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: '11111111-1111-1111-1111-111111111104' }
+              - column: { name: name, value: 'Anna Mets' }
+              - column: { name: email, value: 'anna@kodukraam.ee' }
+              - column: { name: password_hash, value: '$2b$10$GGGvc4jWPzuJvKmudph8lu8TwkOuVVSujzSwo92efNCMu8Su2kDcy' }
+              - column: { name: role, value: BUYER }
+              - column: { name: latitude, valueNumeric: 59.4250 }
+              - column: { name: longitude, valueNumeric: 24.7450 }
+              - column: { name: city, value: Tallinn }
+              - column: { name: auth_provider, value: LOCAL }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+              - column: { name: updated_at, valueDate: '2026-03-01T10:00:00' }
+
+  - changeSet:
+      id: 002-sample-producers
+      author: kodukraam
+      changes:
+        - insert:
+            tableName: producer_profiles
+            columns:
+              - column: { name: id, value: '22222222-2222-2222-2222-222222222201' }
+              - column: { name: user_id, value: '11111111-1111-1111-1111-111111111101' }
+              - column: { name: farm_name, value: 'Tammemäe Aed' }
+              - column: { name: description, value: 'Väike aed Tallinna ääres. Kasvatame maasikaid, ürte ja köögivilju ilma kemikaalideta.' }
+              - column: { name: rating_avg, valueNumeric: 4.80 }
+              - column: { name: rating_count, valueNumeric: 12 }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: true }
+              - column: { name: delivery_radius_km, valueNumeric: 15 }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+        - insert:
+            tableName: producer_profiles
+            columns:
+              - column: { name: id, value: '22222222-2222-2222-2222-222222222202' }
+              - column: { name: user_id, value: '11111111-1111-1111-1111-111111111102' }
+              - column: { name: farm_name, value: 'Saare Mesila' }
+              - column: { name: description, value: 'Pereettevõte Tartu lähedal. Mesi, munad ja värske leib otse talust.' }
+              - column: { name: rating_avg, valueNumeric: 4.90 }
+              - column: { name: rating_count, valueNumeric: 28 }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: false }
+              - column: { name: delivery_radius_km, valueNumeric: 0 }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+        - insert:
+            tableName: producer_profiles
+            columns:
+              - column: { name: id, value: '22222222-2222-2222-2222-222222222203' }
+              - column: { name: user_id, value: '11111111-1111-1111-1111-111111111103' }
+              - column: { name: farm_name, value: 'Kase Käsitöö' }
+              - column: { name: description, value: 'Käsitöö keraamika, küünlad ja kodutekstiil. Kõik tehtud käega Tallinnas.' }
+              - column: { name: rating_avg, valueNumeric: 4.70 }
+              - column: { name: rating_count, valueNumeric: 9 }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: true }
+              - column: { name: delivery_radius_km, valueNumeric: 20 }
+              - column: { name: created_at, valueDate: '2026-03-01T10:00:00' }
+
+  - changeSet:
+      id: 002-sample-products
+      author: kodukraam
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: '33333333-3333-3333-3333-333333333301' }
+              - column: { name: producer_id, value: '22222222-2222-2222-2222-222222222201' }
+              - column: { name: name, value: 'Mahepõllumajanduslikud maasikad' }
+              - column: { name: description, value: 'Värsked maasikad otse peenralt. Magusad ja lõhnavad — ideaalsed magustoitudeks või värskelt söömiseks.' }
+              - column: { name: category, value: FOOD }
+              - column: { name: price, valueNumeric: 8.50 }
+              - column: { name: unit, value: kg }
+              - column: { name: quantity, valueNumeric: 20 }
+              - column: { name: latitude, valueNumeric: 59.4300 }
+              - column: { name: longitude, valueNumeric: 24.7800 }
+              - column: { name: location_label, value: 'Pirita, Tallinn' }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: true }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: created_at, valueDate: '2026-06-01T08:00:00' }
+              - column: { name: updated_at, valueDate: '2026-06-01T08:00:00' }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: '33333333-3333-3333-3333-333333333302' }
+              - column: { name: producer_id, value: '22222222-2222-2222-2222-222222222202' }
+              - column: { name: name, value: 'Värsked vabapidamise munad' }
+              - column: { name: description, value: 'Kümme muna vabapidamise kanadelt. Kollane ja maitsev.' }
+              - column: { name: category, value: FARM }
+              - column: { name: price, valueNumeric: 4.50 }
+              - column: { name: unit, value: box }
+              - column: { name: quantity, valueNumeric: 40 }
+              - column: { name: latitude, valueNumeric: 58.3700 }
+              - column: { name: longitude, valueNumeric: 26.7200 }
+              - column: { name: location_label, value: 'Ülenurme, Tartu' }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: false }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: created_at, valueDate: '2026-06-02T08:00:00' }
+              - column: { name: updated_at, valueDate: '2026-06-02T08:00:00' }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: '33333333-3333-3333-3333-333333333303' }
+              - column: { name: producer_id, value: '22222222-2222-2222-2222-222222222202' }
+              - column: { name: name, value: 'Lillemesi 500g' }
+              - column: { name: description, value: 'Kohalik lillemesi — pehme ja aromaatne. Ideaalne tee juurde.' }
+              - column: { name: category, value: FARM }
+              - column: { name: price, valueNumeric: 12.00 }
+              - column: { name: unit, value: jar }
+              - column: { name: quantity, valueNumeric: 25 }
+              - column: { name: latitude, valueNumeric: 58.3700 }
+              - column: { name: longitude, valueNumeric: 26.7200 }
+              - column: { name: location_label, value: 'Ülenurme, Tartu' }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: false }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: created_at, valueDate: '2026-06-03T08:00:00' }
+              - column: { name: updated_at, valueDate: '2026-06-03T08:00:00' }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: '33333333-3333-3333-3333-333333333304' }
+              - column: { name: producer_id, value: '22222222-2222-2222-2222-222222222201' }
+              - column: { name: name, value: 'Kodune juuretisleib' }
+              - column: { name: description, value: 'Aeglase kääritusega rukkileib. Küpsetatud hommikul.' }
+              - column: { name: category, value: FOOD }
+              - column: { name: price, valueNumeric: 5.00 }
+              - column: { name: unit, value: piece }
+              - column: { name: quantity, valueNumeric: 8 }
+              - column: { name: latitude, valueNumeric: 59.4300 }
+              - column: { name: longitude, valueNumeric: 24.7800 }
+              - column: { name: location_label, value: 'Pirita, Tallinn' }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: true }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: created_at, valueDate: '2026-06-04T08:00:00' }
+              - column: { name: updated_at, valueDate: '2026-06-04T08:00:00' }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: '33333333-3333-3333-3333-333333333305' }
+              - column: { name: producer_id, value: '22222222-2222-2222-2222-222222222203' }
+              - column: { name: name, value: 'Käsitsi valmistatud savikauss' }
+              - column: { name: description, value: 'Unikaalne keraamiline kauss. Igale tükile oma iseloom.' }
+              - column: { name: category, value: HANDMADE }
+              - column: { name: price, valueNumeric: 28.00 }
+              - column: { name: unit, value: piece }
+              - column: { name: quantity, valueNumeric: 5 }
+              - column: { name: latitude, valueNumeric: 59.4370 }
+              - column: { name: longitude, valueNumeric: 24.7536 }
+              - column: { name: location_label, value: 'Kalamaja, Tallinn' }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: true }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: created_at, valueDate: '2026-06-05T08:00:00' }
+              - column: { name: updated_at, valueDate: '2026-06-05T08:00:00' }
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: '33333333-3333-3333-3333-333333333306' }
+              - column: { name: producer_id, value: '22222222-2222-2222-2222-222222222201' }
+              - column: { name: name, value: 'Tomatitaimed (5 tk)' }
+              - column: { name: description, value: "Tugevad tomatitaimed istutamiseks. Sort: Balcony Red." }
+              - column: { name: category, value: PLANTS }
+              - column: { name: price, valueNumeric: 7.50 }
+              - column: { name: unit, value: box }
+              - column: { name: quantity, valueNumeric: 15 }
+              - column: { name: latitude, valueNumeric: 59.4300 }
+              - column: { name: longitude, valueNumeric: 24.7800 }
+              - column: { name: location_label, value: 'Pirita, Tallinn' }
+              - column: { name: pickup_available, valueBoolean: true }
+              - column: { name: delivery_available, valueBoolean: false }
+              - column: { name: active, valueBoolean: true }
+              - column: { name: created_at, valueDate: '2026-06-06T08:00:00' }
+              - column: { name: updated_at, valueDate: '2026-06-06T08:00:00' }
+
+  - changeSet:
+      id: 002-sample-photos
+      author: kodukraam
+      changes:
+        - insert:
+            tableName: product_photos
+            columns:
+              - column: { name: id, value: '44444444-4444-4444-4444-444444444401' }
+              - column: { name: product_id, value: '33333333-3333-3333-3333-333333333301' }
+              - column: { name: url, value: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=800' }
+              - column: { name: sort_order, valueNumeric: 0 }
+        - insert:
+            tableName: product_photos
+            columns:
+              - column: { name: id, value: '44444444-4444-4444-4444-444444444402' }
+              - column: { name: product_id, value: '33333333-3333-3333-3333-333333333302' }
+              - column: { name: url, value: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=800' }
+              - column: { name: sort_order, valueNumeric: 0 }
+        - insert:
+            tableName: product_photos
+            columns:
+              - column: { name: id, value: '44444444-4444-4444-4444-444444444403' }
+              - column: { name: product_id, value: '33333333-3333-3333-3333-333333333303' }
+              - column: { name: url, value: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800' }
+              - column: { name: sort_order, valueNumeric: 0 }
+        - insert:
+            tableName: product_photos
+            columns:
+              - column: { name: id, value: '44444444-4444-4444-4444-444444444404' }
+              - column: { name: product_id, value: '33333333-3333-3333-3333-333333333304' }
+              - column: { name: url, value: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800' }
+              - column: { name: sort_order, valueNumeric: 0 }
+        - insert:
+            tableName: product_photos
+            columns:
+              - column: { name: id, value: '44444444-4444-4444-4444-444444444405' }
+              - column: { name: product_id, value: '33333333-3333-3333-3333-333333333305' }
+              - column: { name: url, value: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800' }
+              - column: { name: sort_order, valueNumeric: 0 }
+        - insert:
+            tableName: product_photos
+            columns:
+              - column: { name: id, value: '44444444-4444-4444-4444-444444444406' }
+              - column: { name: product_id, value: '33333333-3333-3333-3333-333333333306' }
+              - column: { name: url, value: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800' }
+              - column: { name: sort_order, valueNumeric: 0 }

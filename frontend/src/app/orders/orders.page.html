@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Tellimused</ion-title>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="auth.isProducer">
+    <ion-segment [(ngModel)]="segment" (ionChange)="segment = $any($event.detail.value)">
+      <ion-segment-button value="buying"><ion-label>Ostan</ion-label></ion-segment-button>
+      <ion-segment-button value="selling"><ion-label>Müün</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="kk-page">
+    <div *ngIf="loading" class="center"><ion-spinner></ion-spinner></div>
+
+    <div *ngIf="!loading && list().length === 0" class="empty kk-muted">
+      Tellimusi pole veel. Avasta kohalikke tooteid!
+    </div>
+
+    <article class="order-card" *ngFor="let o of list()">
+      <div class="row">
+        <img *ngIf="o.productPhoto" [src]="o.productPhoto" [alt]="o.productName" />
+        <div class="meta">
+          <h3>{{ o.productName }}</h3>
+          <p class="kk-muted">
+            {{ segment === 'buying' ? o.farmName : o.buyerName }}
+            · {{ o.quantity }} {{ o.unit }}
+            · {{ o.totalPrice | number:'1.2-2' }} €
+          </p>
+          <p class="kk-muted">{{ o.fulfillment === 'PICKUP' ? 'Järeletulemine' : 'Kohaletoimetamine' }}</p>
+          <span class="kk-status" [ngClass]="statusClass(o.status)">{{ o.status }}</span>
+          <p *ngIf="o.message" class="msg">„{{ o.message }}”</p>
+        </div>
+      </div>
+
+      <div class="actions" *ngIf="segment === 'selling' && o.status === 'PENDING'">
+        <ion-button size="small" (click)="update(o, 'ACCEPTED')">Võta vastu</ion-button>
+        <ion-button size="small" fill="outline" color="danger" (click)="update(o, 'REJECTED')">Keeldu</ion-button>
+      </div>
+      <div class="actions" *ngIf="segment === 'selling' && o.status === 'ACCEPTED'">
+        <ion-button size="small" (click)="update(o, 'COMPLETED')">Märgi lõpetatuks</ion-button>
+      </div>
+      <div class="actions" *ngIf="segment === 'buying' && o.status === 'PENDING'">
+        <ion-button size="small" fill="outline" color="medium" (click)="update(o, 'CANCELLED')">Tühista</ion-button>
+      </div>
+      <div class="actions" *ngIf="segment === 'buying' && o.canReview">
+        <ion-button size="small" fill="outline" (click)="review(o)">Jäta hinnang</ion-button>
+      </div>
+    </article>
+  </div>
+</ion-content>

@@ -1,0 +1,23 @@
+.product h1 {
+  margin: 16px 0 4px;
+  font-size: 1.7rem;
+}
+
+.hero-media {
+  margin: 0 -16px;
+  width: calc(100% + 32px);
+}
+
+.hero-media img {
+  width: 100%;
+  height: min(52vh, 360px);
+  object-fit: cover;
+  display: block;
+}
+
+.review {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--kk-border);
+}
+
+.error { color: var(--kk-danger); }

@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/browse" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Toode</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="kk-page" *ngIf="loading"><ion-spinner name="crescent"></ion-spinner></div>
+  <div class="kk-page" *ngIf="error"><p class="error">{{ error }}</p></div>
+
+  <div class="kk-page product" *ngIf="product && !loading">
+    <div class="hero-media">
+      <img [src]="photo()" [alt]="product.name" />
+    </div>
+
+    <h1 class="brand-font">{{ product.name }}</h1>
+    <p class="kk-price">{{ product.price | number:'1.2-2' }} € / {{ product.unit }}</p>
+    <p class="kk-muted">
+      {{ product.producer.farmName }} · ★ {{ product.producer.ratingAvg | number:'1.1-1' }}
+      ({{ product.producer.ratingCount }}) · {{ product.distanceKm ?? '—' }} km
+    </p>
+    <p>{{ product.description }}</p>
+    <p class="kk-muted">
+      Saadaval: {{ product.quantity }} {{ product.unit }}
+      · {{ product.locationLabel || 'Eesti' }}
+      · {{ product.pickupAvailable ? 'Järeletulemine' : '' }}
+      {{ product.pickupAvailable && product.deliveryAvailable ? ' · ' : '' }}
+      {{ product.deliveryAvailable ? 'Kohaletoimetamine' : '' }}
+    </p>
+
+    <h2 class="kk-section-title">Telli</h2>
+    <div class="kk-form">
+      <ion-item>
+        <ion-label position="stacked">Kogus</ion-label>
+        <ion-input type="number" [(ngModel)]="quantity" min="1"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Kättesaamine</ion-label>
+        <ion-select [(ngModel)]="fulfillment" interface="popover">
+          <ion-select-option *ngIf="product.pickupAvailable" value="PICKUP">Järeletulemine</ion-select-option>
+          <ion-select-option *ngIf="product.deliveryAvailable" value="DELIVERY">Kohaletoimetamine</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Sõnum tootjale</ion-label>
+        <ion-textarea [(ngModel)]="message" rows="3" placeholder="Millal sobib? Eritingimused?"></ion-textarea>
+      </ion-item>
+
+      <ion-button expand="block" color="primary" [disabled]="ordering" (click)="order()">
+        {{ ordering ? 'Saadan…' : 'Telli' }}
+      </ion-button>
+    </div>
+
+    <h2 class="kk-section-title">Arvustused</h2>
+    <div *ngIf="reviews.length === 0" class="kk-muted">Arvustusi veel pole.</div>
+    <div class="review" *ngFor="let r of reviews">
+      <strong>{{ r.reviewerName }}</strong>
+      <span> ★ {{ r.rating }}</span>
+      <p>{{ r.comment }}</p>
+    </div>
+  </div>
+</ion-content>

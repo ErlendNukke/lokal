@@ -1,0 +1,23 @@
+.radius-row {
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.radius-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.loading-wrap, .empty, .error {
+  text-align: center;
+  padding: 28px 12px;
+}
+
+.error {
+  color: var(--kk-danger);
+}
+
+.kk-product-card {
+  cursor: pointer;
+}
