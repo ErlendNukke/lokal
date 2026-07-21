@@ -1,0 +1,173 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-users
+      author: kodukraam
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: name, type: "varchar(120)", constraints: { nullable: false } }
+              - column: { name: email, type: "varchar(255)", constraints: { nullable: false, unique: true } }
+              - column: { name: password_hash, type: "varchar(255)" }
+              - column: { name: role, type: "varchar(20)", constraints: { nullable: false } }
+              - column: { name: latitude, type: double }
+              - column: { name: longitude, type: double }
+              - column: { name: city, type: "varchar(120)" }
+              - column: { name: avatar_url, type: "varchar(512)" }
+              - column: { name: auth_provider, type: "varchar(40)", defaultValue: LOCAL }
+              - column: { name: created_at, type: timestamp, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, constraints: { nullable: false } }
+
+  - changeSet:
+      id: 001-producer-profiles
+      author: kodukraam
+      changes:
+        - createTable:
+            tableName: producer_profiles
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: user_id, type: uuid, constraints: { nullable: false, unique: true } }
+              - column: { name: farm_name, type: "varchar(160)", constraints: { nullable: false } }
+              - column: { name: description, type: "varchar(2000)" }
+              - column: { name: rating_avg, type: "decimal(3,2)", defaultValueNumeric: 0 }
+              - column: { name: rating_count, type: int, defaultValueNumeric: 0 }
+              - column: { name: pickup_available, type: boolean, defaultValueBoolean: true }
+              - column: { name: delivery_available, type: boolean, defaultValueBoolean: false }
+              - column: { name: delivery_radius_km, type: int, defaultValueNumeric: 10 }
+              - column: { name: created_at, type: timestamp, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: producer_profiles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_producer_user
+
+  - changeSet:
+      id: 001-products
+      author: kodukraam
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: producer_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: name, type: "varchar(160)", constraints: { nullable: false } }
+              - column: { name: description, type: "varchar(2000)" }
+              - column: { name: category, type: "varchar(40)", constraints: { nullable: false } }
+              - column: { name: price, type: "decimal(10,2)", constraints: { nullable: false } }
+              - column: { name: unit, type: "varchar(20)", constraints: { nullable: false } }
+              - column: { name: quantity, type: "decimal(10,2)", constraints: { nullable: false } }
+              - column: { name: latitude, type: double, constraints: { nullable: false } }
+              - column: { name: longitude, type: double, constraints: { nullable: false } }
+              - column: { name: location_label, type: "varchar(160)" }
+              - column: { name: pickup_available, type: boolean, defaultValueBoolean: true }
+              - column: { name: delivery_available, type: boolean, defaultValueBoolean: false }
+              - column: { name: active, type: boolean, defaultValueBoolean: true }
+              - column: { name: created_at, type: timestamp, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: products
+            baseColumnNames: producer_id
+            referencedTableName: producer_profiles
+            referencedColumnNames: id
+            constraintName: fk_product_producer
+        - createIndex:
+            tableName: products
+            indexName: idx_products_category
+            columns:
+              - column: { name: category }
+        - createIndex:
+            tableName: products
+            indexName: idx_products_location
+            columns:
+              - column: { name: latitude }
+              - column: { name: longitude }
+
+  - changeSet:
+      id: 001-product-photos
+      author: kodukraam
+      changes:
+        - createTable:
+            tableName: product_photos
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: product_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: url, type: "varchar(512)", constraints: { nullable: false } }
+              - column: { name: sort_order, type: int, defaultValueNumeric: 0 }
+        - addForeignKeyConstraint:
+            baseTableName: product_photos
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_photo_product
+
+  - changeSet:
+      id: 001-orders
+      author: kodukraam
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: buyer_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: product_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: producer_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: quantity, type: "decimal(10,2)", constraints: { nullable: false } }
+              - column: { name: unit_price, type: "decimal(10,2)", constraints: { nullable: false } }
+              - column: { name: fulfillment, type: "varchar(20)", constraints: { nullable: false } }
+              - column: { name: message, type: "varchar(1000)" }
+              - column: { name: status, type: "varchar(30)", constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamp, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamp, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: buyer_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_order_buyer
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_order_product
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: producer_id
+            referencedTableName: producer_profiles
+            referencedColumnNames: id
+            constraintName: fk_order_producer
+
+  - changeSet:
+      id: 001-reviews
+      author: kodukraam
+      changes:
+        - createTable:
+            tableName: reviews
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: order_id, type: uuid, constraints: { nullable: false, unique: true } }
+              - column: { name: reviewer_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: producer_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: rating, type: int, constraints: { nullable: false } }
+              - column: { name: comment, type: "varchar(1000)" }
+              - column: { name: created_at, type: timestamp, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableName: reviews
+            baseColumnNames: order_id
+            referencedTableName: orders
+            referencedColumnNames: id
+            constraintName: fk_review_order
+        - addForeignKeyConstraint:
+            baseTableName: reviews
+            baseColumnNames: reviewer_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_review_user
+        - addForeignKeyConstraint:
+            baseTableName: reviews
+            baseColumnNames: producer_id
+            referencedTableName: producer_profiles
+            referencedColumnNames: id
+            constraintName: fk_review_producer
