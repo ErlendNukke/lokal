@@ -68,6 +68,7 @@ Password: `password123`
 - `docs/database.md`
 - `docs/api-smoke.md`
 - `docs/deploy-neon-render.md` — free Neon Postgres + Render API
+- `docs/deploy-firebase-web.md` — Firebase Hosting + PWA install
 - `docs/storage-s3.md` — MinIO / Cloudflare R2 / AWS S3 photo storage
 
 ## Project layout

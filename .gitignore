@@ -16,6 +16,9 @@ backend/uploads/
 .env
 *.log
 
+# Firebase
+.firebase/
+
 # Flutter
 mobile/.dart_tool/
 mobile/.flutter-plugins
