@@ -69,6 +69,7 @@ Password: `password123`
 - `docs/api-smoke.md`
 - `docs/deploy-neon-render.md` — free Neon Postgres + Render API
 - `docs/storage-s3.md` — MinIO / Cloudflare R2 / AWS S3 photo storage
+- `docs/firebase-hosting.md` — Flutter web on Firebase (`lokal-eu.web.app`)
 
 ## Project layout
 
