@@ -66,6 +66,7 @@ Password: `password123`
 - `docs/architecture.md`
 - `docs/database.md`
 - `docs/api-smoke.md`
+- `docs/deploy-neon-render.md` — free Neon Postgres + Render API
 
 ## Project layout
 

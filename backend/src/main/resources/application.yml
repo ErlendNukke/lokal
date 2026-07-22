@@ -64,10 +64,14 @@ spring:
     activate:
       on-profile: prod
   datasource:
+    # Neon: use the JDBC URL and append ?sslmode=require (or &sslmode=require)
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/lokal}
     username: ${DATABASE_USER:lokal}
     password: ${DATABASE_PASSWORD:lokal}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      connection-timeout: 30000
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false

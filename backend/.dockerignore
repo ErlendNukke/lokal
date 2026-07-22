@@ -1,0 +1,8 @@
+target/
+uploads/
+.git
+.idea
+*.iml
+.classpath
+.project
+.settings/
