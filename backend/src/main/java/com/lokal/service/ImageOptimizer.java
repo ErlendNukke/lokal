@@ -55,8 +55,18 @@ public class ImageOptimizer {
                     "Image too large (max " + (maxUploadBytes / (1024 * 1024)) + " MB)");
         }
         String contentType = normalizeContentType(file.getContentType());
+        if ("image/heic".equals(contentType) || "image/heif".equals(contentType)) {
+            throw new IllegalArgumentException(
+                    "iPhone HEIC photos must be converted to JPEG first. "
+                            + "On iPhone: Settings → Camera → Formats → Most Compatible, or use the updated web app.");
+        }
         if (!ALLOWED.contains(contentType)) {
             contentType = contentTypeFromFilename(file.getOriginalFilename());
+        }
+        if ("image/heic".equals(contentType)) {
+            throw new IllegalArgumentException(
+                    "iPhone HEIC photos must be converted to JPEG first. "
+                            + "On iPhone: Settings → Camera → Formats → Most Compatible, or use the updated web app.");
         }
         if (!ALLOWED.contains(contentType)) {
             throw new IllegalArgumentException("Only JPEG, PNG, WEBP, GIF images are allowed");
@@ -168,6 +178,10 @@ public class ImageOptimizer {
         }
         if (name.endsWith(".jpg") || name.endsWith(".jpeg")) {
             return "image/jpeg";
+        }
+        if (name.endsWith(".heic") || name.endsWith(".heif")) {
+            // Java ImageIO cannot decode HEIC — client should convert to JPEG first.
+            return "image/heic";
         }
         return "";
     }

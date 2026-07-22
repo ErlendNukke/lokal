@@ -6,6 +6,7 @@ import 'package:lokal/models/models.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/utils/prepare_image_upload.dart';
 import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
@@ -65,15 +66,20 @@ class _ProducerScreenState extends State<ProducerScreen> {
   }
 
   Future<void> _pickPhoto() async {
-    final file = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final file = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 85,
+      requestFullMetadata: false,
+    );
     if (file == null) return;
     try {
-      final bytes = await file.readAsBytes();
-      final name = file.name.trim().isEmpty ? 'photo.jpg' : file.name;
+      final prepared = await prepareImageForUpload(file);
       final url = await context.read<MarketplaceService>().uploadImage(
-            bytes,
-            filename: name,
-            mimeType: file.mimeType,
+            prepared.bytes,
+            filename: prepared.filename,
+            mimeType: prepared.mimeType,
           );
       setState(() => _photoUrl = url);
     } catch (e) {

@@ -4,7 +4,11 @@ Lokal uploads product photos via `POST /api/uploads` and stores a public URL on 
 
 Uploads are capped at **20 MB**, then resized to **thumbnail size (max 600px)** on the longest edge and re-encoded as **JPEG (~quality 0.75)**. Typical stored size is ~30–120 KB. Override with `MAX_UPLOAD_BYTES`, `IMAGE_MAX_EDGE_PX`, `IMAGE_JPEG_QUALITY`.
 
-## R2 CORS (required for Flutter web)
+## iPhone uploads
+
+iPhone photos are often **HEIC**. The API only stores JPEG/PNG/WebP/GIF, so the Flutter web app re-encodes picks to JPEG in the browser (Safari can decode HEIC) before `POST /api/uploads`.
+
+If upload still fails on an old build: iPhone **Settings → Camera → Formats → Most Compatible** (saves JPG).
 
 Flutter web (CanvasKit) will **not show** R2 images unless the bucket allows cross-origin GETs. Seed Unsplash photos work because they send `Access-Control-Allow-Origin: *`; a fresh R2 bucket does not.
 
