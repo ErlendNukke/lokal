@@ -73,6 +73,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
       final url = await context.read<MarketplaceService>().uploadImage(
             bytes,
             filename: name,
+            mimeType: file.mimeType,
           );
       setState(() => _photoUrl = url);
     } catch (e) {

@@ -56,6 +56,9 @@ public class ImageOptimizer {
         }
         String contentType = normalizeContentType(file.getContentType());
         if (!ALLOWED.contains(contentType)) {
+            contentType = contentTypeFromFilename(file.getOriginalFilename());
+        }
+        if (!ALLOWED.contains(contentType)) {
             throw new IllegalArgumentException("Only JPEG, PNG, WEBP, GIF images are allowed");
         }
 
@@ -147,6 +150,26 @@ public class ImageOptimizer {
             return "image/jpeg";
         }
         return ct;
+    }
+
+    static String contentTypeFromFilename(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return "";
+        }
+        String name = filename.toLowerCase(Locale.ROOT);
+        if (name.endsWith(".png")) {
+            return "image/png";
+        }
+        if (name.endsWith(".webp")) {
+            return "image/webp";
+        }
+        if (name.endsWith(".gif")) {
+            return "image/gif";
+        }
+        if (name.endsWith(".jpg") || name.endsWith(".jpeg")) {
+            return "image/jpeg";
+        }
+        return "";
     }
 
     public record OptimizedImage(byte[] bytes, String contentType, String extension) {}

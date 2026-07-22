@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class ApiException implements Exception {
   ApiException(this.message);
@@ -73,7 +74,11 @@ class ApiClient {
     return parser != null ? parser(json) : json as T;
   }
 
-  Future<String> uploadImage(List<int> bytes, {required String filename}) async {
+  Future<String> uploadImage(
+    List<int> bytes, {
+    required String filename,
+    String? mimeType,
+  }) async {
     final request = http.MultipartRequest('POST', _uri('/api/uploads'));
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
@@ -82,13 +87,33 @@ class ApiClient {
       'file',
       bytes,
       filename: filename,
+      contentType: _imageMediaType(filename, mimeType),
     ));
     final streamed = await request.send();
     final response = await http.Response.fromStream(streamed);
     if (response.statusCode >= 400) {
-      throw ApiException('Upload failed');
+      String message = 'Upload failed';
+      try {
+        final json = jsonDecode(response.body);
+        if (json is Map && json['error'] != null) {
+          message = json['error'].toString();
+        }
+      } catch (_) {}
+      throw ApiException(message);
     }
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return json['url'] as String;
+  }
+
+  MediaType _imageMediaType(String filename, String? mimeType) {
+    final mime = mimeType?.split(';').first.trim().toLowerCase();
+    if (mime != null && mime.startsWith('image/')) {
+      return MediaType.parse(mime == 'image/jpg' ? 'image/jpeg' : mime);
+    }
+    final name = filename.toLowerCase();
+    if (name.endsWith('.png')) return MediaType('image', 'png');
+    if (name.endsWith('.webp')) return MediaType('image', 'webp');
+    if (name.endsWith('.gif')) return MediaType('image', 'gif');
+    return MediaType('image', 'jpeg');
   }
 }

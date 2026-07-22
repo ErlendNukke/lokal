@@ -106,6 +106,10 @@ class MarketplaceService {
     return list.map((e) => Review.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<String> uploadImage(List<int> bytes, {required String filename}) =>
-      _api.uploadImage(bytes, filename: filename);
+  Future<String> uploadImage(
+    List<int> bytes, {
+    required String filename,
+    String? mimeType,
+  }) =>
+      _api.uploadImage(bytes, filename: filename, mimeType: mimeType);
 }
