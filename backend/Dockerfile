@@ -3,15 +3,11 @@
 FROM eclipse-temurin:25-jdk AS build
 WORKDIR /app
 
-# Avoid apt mirrors (flaky on some Temurin base images); install Maven from Apache.
-ARG MAVEN_VERSION=3.9.11
-RUN curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
-    | tar -xz -C /opt \
-    && ln -s "/opt/apache-maven-${MAVEN_VERSION}/bin/mvn" /usr/local/bin/mvn
-
 COPY pom.xml .
+COPY mvnw .
+COPY .mvn .mvn
 COPY src ./src
-RUN mvn -B -DskipTests package
+RUN chmod +x mvnw && ./mvnw -B -DskipTests package
 
 FROM eclipse-temurin:25-jre
 WORKDIR /app
