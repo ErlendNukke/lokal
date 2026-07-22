@@ -19,7 +19,7 @@ class ImageOptimizerTest {
 
     @BeforeEach
     void setUp() {
-        optimizer = new ImageOptimizer(5 * 1024 * 1024, 600, 0.75f);
+        optimizer = new ImageOptimizer(20 * 1024 * 1024, 600, 0.75f);
     }
 
     @Test

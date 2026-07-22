@@ -5,8 +5,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB
+      max-file-size: 20MB
+      max-request-size: 21MB
   jpa:
     open-in-view: false
     hibernate:
@@ -38,8 +38,8 @@ lokal:
     type: ${STORAGE_TYPE:local}
     local-path: ${UPLOAD_PATH:./uploads}
     public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080/uploads}
-    # Reject uploads over this size before processing (5 MB)
-    max-upload-bytes: ${MAX_UPLOAD_BYTES:5242880}
+    # Reject uploads over this size before processing (20 MB — then shrunk to thumbnail)
+    max-upload-bytes: ${MAX_UPLOAD_BYTES:20971520}
     # Thumbnail: longest edge after resize (600px fits cards + light detail)
     max-edge-px: ${IMAGE_MAX_EDGE_PX:600}
     # JPEG quality 0.50–0.95 (0.75 keeps thumbs small)
