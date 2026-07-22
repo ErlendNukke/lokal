@@ -4,6 +4,26 @@ Lokal uploads product photos via `POST /api/uploads` and stores a public URL on 
 
 Uploads are capped at **20 MB**, then resized to **thumbnail size (max 600px)** on the longest edge and re-encoded as **JPEG (~quality 0.75)**. Typical stored size is ~30–120 KB. Override with `MAX_UPLOAD_BYTES`, `IMAGE_MAX_EDGE_PX`, `IMAGE_JPEG_QUALITY`.
 
+## R2 CORS (required for Flutter web)
+
+Flutter web (CanvasKit) will **not show** R2 images unless the bucket allows cross-origin GETs. Seed Unsplash photos work because they send `Access-Control-Allow-Origin: *`; a fresh R2 bucket does not.
+
+In Cloudflare → **R2** → bucket `lokal` → **Settings** → **CORS Policy** → **Add**:
+
+```json
+[
+  {
+    "AllowedOrigins": ["*"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+Then hard-refresh the app. Uploaded thumbs should appear.
+
 | `STORAGE_TYPE` | Backend | Survives Render restarts? |
 |----------------|---------|---------------------------|
 | `local` (default) | Files under `UPLOAD_PATH`, served at `/uploads/**` | No on free Render (`/tmp`) |
