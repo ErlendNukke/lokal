@@ -2,6 +2,7 @@ package com.lokal.web;
 
 import com.lokal.domain.ProductCategory;
 import com.lokal.security.SecurityUtils;
+import com.lokal.service.ImageOptimizer;
 import com.lokal.service.ProductService;
 import com.lokal.service.StorageService;
 import com.lokal.web.dto.ApiDtos.*;
@@ -19,10 +20,16 @@ public class ProductController {
 
     private final ProductService productService;
     private final StorageService storageService;
+    private final ImageOptimizer imageOptimizer;
 
-    public ProductController(ProductService productService, StorageService storageService) {
+    public ProductController(
+            ProductService productService,
+            StorageService storageService,
+            ImageOptimizer imageOptimizer
+    ) {
         this.productService = productService;
         this.storageService = storageService;
+        this.imageOptimizer = imageOptimizer;
     }
 
     @GetMapping("/products")
@@ -68,7 +75,8 @@ public class ProductController {
 
     @PostMapping("/uploads")
     public Map<String, String> upload(@RequestParam("file") MultipartFile file) {
-        return Map.of("url", storageService.store(file));
+        ImageOptimizer.OptimizedImage optimized = imageOptimizer.optimize(file);
+        return Map.of("url", storageService.store(optimized.bytes(), optimized.contentType(), optimized.extension()));
     }
 
     @GetMapping("/producers/{id}")

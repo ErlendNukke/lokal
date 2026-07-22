@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
@@ -16,7 +15,6 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -56,7 +54,6 @@ public class S3StorageService implements StorageService {
         } catch (NoSuchBucketException e) {
             createBucketOrFail(e);
         } catch (S3Exception e) {
-            // Some providers return 404 instead of NoSuchBucketException
             if (e.statusCode() == 404) {
                 createBucketOrFail(e);
                 return;
@@ -78,31 +75,26 @@ public class S3StorageService implements StorageService {
     }
 
     @Override
-    public String store(MultipartFile file) {
-        String contentType = LocalStorageService.validate(file);
-        String key = "products/" + UUID.randomUUID() + LocalStorageService.extensionFor(contentType);
-
-        final byte[] bytes;
-        try {
-            bytes = file.getBytes();
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to read upload", e);
+    public String store(byte[] data, String contentType, String extension) {
+        if (data == null || data.length == 0) {
+            throw new IllegalArgumentException("Empty file");
         }
+        String ext = extension.startsWith(".") ? extension : "." + extension;
+        String key = "products/" + UUID.randomUUID() + ext;
 
         PutObjectRequest.Builder put = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
                 .contentType(contentType)
-                .contentLength((long) bytes.length);
+                .contentLength((long) data.length);
 
         if (publicRead) {
             put.acl(ObjectCannedACL.PUBLIC_READ);
         }
 
         try {
-            s3Client.putObject(put.build(), RequestBody.fromBytes(bytes));
+            s3Client.putObject(put.build(), RequestBody.fromBytes(data));
         } catch (S3Exception e) {
-            // R2 and some MinIO policies reject ACL — retry without it
             if (publicRead && e.statusCode() == 400) {
                 log.warn("PutObject with ACL failed ({}), retrying without ACL", e.awsErrorDetails().errorMessage());
                 s3Client.putObject(
@@ -110,9 +102,9 @@ public class S3StorageService implements StorageService {
                                 .bucket(bucket)
                                 .key(key)
                                 .contentType(contentType)
-                                .contentLength((long) bytes.length)
+                                .contentLength((long) data.length)
                                 .build(),
-                        RequestBody.fromBytes(bytes)
+                        RequestBody.fromBytes(data)
                 );
             } else {
                 throw new IllegalStateException("Failed to store file in S3", e);

@@ -5,8 +5,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   servlet:
     multipart:
-      max-file-size: 8MB
-      max-request-size: 16MB
+      max-file-size: 5MB
+      max-request-size: 6MB
   jpa:
     open-in-view: false
     hibernate:
@@ -38,6 +38,12 @@ lokal:
     type: ${STORAGE_TYPE:local}
     local-path: ${UPLOAD_PATH:./uploads}
     public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080/uploads}
+    # Reject uploads over this size before processing (5 MB)
+    max-upload-bytes: ${MAX_UPLOAD_BYTES:5242880}
+    # Longest edge after resize (1200px = sharp on phone + product detail; 800px = leaner)
+    max-edge-px: ${IMAGE_MAX_EDGE_PX:1200}
+    # JPEG quality 0.50–0.95 (0.80 ≈ good marketplace default)
+    jpeg-quality: ${IMAGE_JPEG_QUALITY:0.80}
     s3:
       endpoint: ${S3_ENDPOINT:}
       region: ${S3_REGION:eu-central-1}
