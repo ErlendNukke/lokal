@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -70,7 +68,12 @@ class _ProducerScreenState extends State<ProducerScreen> {
     final file = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (file == null) return;
     try {
-      final url = await context.read<MarketplaceService>().uploadImage(File(file.path));
+      final bytes = await file.readAsBytes();
+      final name = file.name.trim().isEmpty ? 'photo.jpg' : file.name;
+      final url = await context.read<MarketplaceService>().uploadImage(
+            bytes,
+            filename: name,
+          );
       setState(() => _photoUrl = url);
     } catch (e) {
       if (!mounted) return;

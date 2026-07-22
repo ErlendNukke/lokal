@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -74,12 +73,16 @@ class ApiClient {
     return parser != null ? parser(json) : json as T;
   }
 
-  Future<String> uploadImage(File file) async {
+  Future<String> uploadImage(List<int> bytes, {required String filename}) async {
     final request = http.MultipartRequest('POST', _uri('/api/uploads'));
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }
-    request.files.add(await http.MultipartFile.fromPath('file', file.path));
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      bytes,
+      filename: filename,
+    ));
     final streamed = await request.send();
     final response = await http.Response.fromStream(streamed);
     if (response.statusCode >= 400) {

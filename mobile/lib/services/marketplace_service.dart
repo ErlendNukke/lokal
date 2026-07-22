@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:lokal/models/models.dart';
 import 'package:lokal/services/api_client.dart';
 
@@ -108,5 +106,6 @@ class MarketplaceService {
     return list.map((e) => Review.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<String> uploadImage(File file) => _api.uploadImage(file);
+  Future<String> uploadImage(List<int> bytes, {required String filename}) =>
+      _api.uploadImage(bytes, filename: filename);
 }
