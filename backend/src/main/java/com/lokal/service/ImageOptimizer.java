@@ -20,7 +20,7 @@ import java.util.Set;
 
 /**
  * Caps upload size and re-encodes product photos to a bounded JPEG for marketplace use.
- * Default: max 5&nbsp;MB in, longest edge 1200px, JPEG quality 0.80 (~100–400&nbsp;KB out).
+ * Default: max 5&nbsp;MB in, longest edge 600px (thumbnail), JPEG quality 0.75 (~30–120&nbsp;KB out).
  */
 @Service
 public class ImageOptimizer {
@@ -38,8 +38,8 @@ public class ImageOptimizer {
 
     public ImageOptimizer(
             @Value("${lokal.storage.max-upload-bytes:5242880}") long maxUploadBytes,
-            @Value("${lokal.storage.max-edge-px:1200}") int maxEdgePx,
-            @Value("${lokal.storage.jpeg-quality:0.80}") float jpegQuality
+            @Value("${lokal.storage.max-edge-px:600}") int maxEdgePx,
+            @Value("${lokal.storage.jpeg-quality:0.75}") float jpegQuality
     ) {
         this.maxUploadBytes = maxUploadBytes;
         this.maxEdgePx = maxEdgePx;

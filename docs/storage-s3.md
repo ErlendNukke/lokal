@@ -2,7 +2,7 @@
 
 Lokal uploads product photos via `POST /api/uploads` and stores a public URL on the product.
 
-Uploads are capped at **5 MB**, then resized to **max 1200px** on the longest edge and re-encoded as **JPEG (~quality 0.80)**. Typical stored size is ~100–400 KB. Override with `MAX_UPLOAD_BYTES`, `IMAGE_MAX_EDGE_PX`, `IMAGE_JPEG_QUALITY`.
+Uploads are capped at **5 MB**, then resized to **thumbnail size (max 600px)** on the longest edge and re-encoded as **JPEG (~quality 0.75)**. Typical stored size is ~30–120 KB. Override with `MAX_UPLOAD_BYTES`, `IMAGE_MAX_EDGE_PX`, `IMAGE_JPEG_QUALITY`.
 
 | `STORAGE_TYPE` | Backend | Survives Render restarts? |
 |----------------|---------|---------------------------|

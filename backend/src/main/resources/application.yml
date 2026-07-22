@@ -40,10 +40,10 @@ lokal:
     public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080/uploads}
     # Reject uploads over this size before processing (5 MB)
     max-upload-bytes: ${MAX_UPLOAD_BYTES:5242880}
-    # Longest edge after resize (1200px = sharp on phone + product detail; 800px = leaner)
-    max-edge-px: ${IMAGE_MAX_EDGE_PX:1200}
-    # JPEG quality 0.50–0.95 (0.80 ≈ good marketplace default)
-    jpeg-quality: ${IMAGE_JPEG_QUALITY:0.80}
+    # Thumbnail: longest edge after resize (600px fits cards + light detail)
+    max-edge-px: ${IMAGE_MAX_EDGE_PX:600}
+    # JPEG quality 0.50–0.95 (0.75 keeps thumbs small)
+    jpeg-quality: ${IMAGE_JPEG_QUALITY:0.75}
     s3:
       endpoint: ${S3_ENDPOINT:}
       region: ${S3_REGION:eu-central-1}

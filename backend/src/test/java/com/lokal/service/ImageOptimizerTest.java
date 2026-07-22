@@ -19,7 +19,7 @@ class ImageOptimizerTest {
 
     @BeforeEach
     void setUp() {
-        optimizer = new ImageOptimizer(5 * 1024 * 1024, 1200, 0.80f);
+        optimizer = new ImageOptimizer(5 * 1024 * 1024, 600, 0.75f);
     }
 
     @Test
@@ -33,7 +33,7 @@ class ImageOptimizerTest {
 
     @Test
     void rejectsOversizeUpload() throws Exception {
-        ImageOptimizer smallCap = new ImageOptimizer(50, 1200, 0.80f);
+        ImageOptimizer smallCap = new ImageOptimizer(50, 600, 0.75f);
         byte[] png = pngBytes(200, 200);
         assertTrue(png.length > 50);
         assertThrows(IllegalArgumentException.class,
@@ -50,9 +50,9 @@ class ImageOptimizerTest {
         assertTrue(result.bytes().length > 0);
 
         BufferedImage out = ImageIO.read(new java.io.ByteArrayInputStream(result.bytes()));
-        assertTrue(out.getWidth() <= 1200);
-        assertTrue(out.getHeight() <= 1200);
-        assertEquals(1200, Math.max(out.getWidth(), out.getHeight()));
+        assertTrue(out.getWidth() <= 600);
+        assertTrue(out.getHeight() <= 600);
+        assertEquals(600, Math.max(out.getWidth(), out.getHeight()));
     }
 
     @Test
