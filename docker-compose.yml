@@ -22,6 +22,19 @@ services:
     volumes:
       - kk_minio:/data
 
+  # Creates the public "lokal" bucket once MinIO is up
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 lokal lokalsecret; do sleep 1; done;
+      mc mb --ignore-existing local/lokal;
+      mc anonymous set download local/lokal;
+      echo 'MinIO bucket lokal is ready';
+      "
+
   api:
     build: ./backend
     profiles: ["full"]
@@ -31,10 +44,22 @@ services:
       DATABASE_USER: lokal
       DATABASE_PASSWORD: lokal
       JWT_SECRET: change-me-in-production-use-long-secret
+      STORAGE_TYPE: s3
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_BUCKET: lokal
+      S3_ACCESS_KEY: lokal
+      S3_SECRET_KEY: lokalsecret
+      S3_PUBLIC_BASE_URL: http://localhost:9000/lokal
+      S3_PATH_STYLE: "true"
+      S3_PUBLIC_READ: "true"
+      S3_CREATE_BUCKET: "true"
     ports:
       - "8080:8080"
     depends_on:
       - db
+      - minio
+      - minio-init
 
 volumes:
   kk_pg:

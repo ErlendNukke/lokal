@@ -103,8 +103,12 @@ In the service → **Environment**, add:
 | `DATABASE_USER` | *(Neon user)* | |
 | `DATABASE_PASSWORD` | *(Neon password)* | |
 | `JWT_SECRET` | 32+ random chars | Don’t use the short default; generate e.g. in PowerShell: `[Convert]::ToBase64String((1..48\|%{Get-Random -Max 256}) -as [byte[]])` |
-| `PUBLIC_BASE_URL` | `https://YOUR-SERVICE.onrender.com/uploads` | Replace `YOUR-SERVICE` after you know the hostname (you can set this after first deploy) |
-| `UPLOAD_PATH` | `/tmp/lokal-uploads` | Ephemeral on free tier |
+| `STORAGE_TYPE` | `s3` | Use cloud object storage so photos survive restarts — see `docs/storage-s3.md` |
+| `S3_ENDPOINT` | *(R2/MinIO endpoint)* | Empty for AWS S3 |
+| `S3_REGION` | `auto` (R2) or `eu-central-1` | |
+| `S3_BUCKET` | `lokal` | |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` | *(provider keys)* | |
+| `S3_PUBLIC_BASE_URL` | `https://pub-….r2.dev` | Browser-reachable HTTPS prefix for uploaded objects |
 | `CORS_ORIGINS` | *(leave empty for now)* | Only needed for hosted Flutter **web** later |
 
 Also ensure the service listens on Render’s port: our app uses `PORT` (Render sets this; default in image is 8080).
@@ -132,11 +136,13 @@ https://lokal-api-xxxx.onrender.com
 
 (Exact name depends on what you chose.)
 
-Set / update `PUBLIC_BASE_URL` to:
+If you still use **local** uploads (`STORAGE_TYPE=local`), set `PUBLIC_BASE_URL` to:
 
 ```text
 https://lokal-api-xxxx.onrender.com/uploads
 ```
+
+Prefer **`STORAGE_TYPE=s3`** with Cloudflare R2 (or S3) so photos persist — see `docs/storage-s3.md`.
 
 Redeploy if you changed env vars after the first boot.
 
@@ -232,7 +238,7 @@ You’re done with this milestone when:
 ### Hardening worth doing before real users
 1. Strong unique `JWT_SECRET` (rotate if it was ever committed)
 2. Paid Render (or always-on host) if cold starts annoy testers
-3. Cloudflare R2 / S3 for photos (free disk loses uploads)
+3. Cloudflare R2 / S3 for photos — wire `STORAGE_TYPE=s3` (see `docs/storage-s3.md`)
 4. Change demo passwords / disable seed users in real prod
 5. Privacy policy + location disclosure (you already have iOS location strings)
 
@@ -248,7 +254,7 @@ You’re done with this milestone when:
 | Login 401 | Wrong password; seed only runs on empty DB |
 | Flutter can’t reach API | Wrong `API_BASE_URL` (must be `https://…`, no trailing slash) |
 | Web CORS errors | Set `CORS_ORIGINS` to the exact web origin |
-| Photos disappear | Expected on free `/tmp` — use cloud storage later |
+| Photos disappear | Expected on free `/tmp` with `STORAGE_TYPE=local` — set `STORAGE_TYPE=s3` (`docs/storage-s3.md`) |
 
 ---
 

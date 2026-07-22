@@ -13,6 +13,7 @@ Mobile-first marketplace MVP connecting local producers with nearby customers.
 | DB | PostgreSQL (prod) / H2 (dev) |
 | Auth | JWT (+ Google demo stub) |
 | Maps | OpenStreetMap + `flutter_map` |
+| Images | Local (dev) or S3-compatible (`docs/storage-s3.md`) |
 
 ## Quick start
 
@@ -67,6 +68,7 @@ Password: `password123`
 - `docs/database.md`
 - `docs/api-smoke.md`
 - `docs/deploy-neon-render.md` — free Neon Postgres + Render API
+- `docs/storage-s3.md` — MinIO / Cloudflare R2 / AWS S3 photo storage
 
 ## Project layout
 

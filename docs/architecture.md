@@ -21,7 +21,7 @@ Tagline: *From nearby.*
 | DB | PostgreSQL (prod) / H2 in-memory (dev) |
 | Migrations | Liquibase |
 | Auth | Spring Security + JWT (Google stub ready) |
-| Images | Local uploads now; S3/MinIO-compatible interface next |
+| Images | S3-compatible (MinIO / R2 / AWS); local filesystem for simple dev |
 | Maps | OpenStreetMap + flutter_map |
 
 ## High-level flow
@@ -68,8 +68,9 @@ Buyer                    API                     Producer
 ## Next scalability steps
 
 1. Real Google / Firebase Auth token verification
-2. MinIO/S3 image storage
-3. Push/email notifications on order events
-4. Postgres + PostGIS for geo queries
-5. Chat between buyer and producer
-6. Payments (optional; keep cash/pickup first)
+2. Push/email notifications on order events
+3. Postgres + PostGIS for geo queries
+4. Chat between buyer and producer
+5. Payments (optional; keep cash/pickup first)
+
+Photo storage: see `docs/storage-s3.md` (`STORAGE_TYPE=s3`).
