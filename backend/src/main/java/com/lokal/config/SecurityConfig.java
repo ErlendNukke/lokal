@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,16 +68,20 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
+        // Use patterns only (works with allowCredentials). Env list can add exact hosts.
+        var patterns = new ArrayList<>(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://10.0.2.2:*"
+                "http://10.0.2.2:*",
+                "https://*.web.app",
+                "https://*.firebaseapp.com"
         ));
-        if (!allowedOrigins.isEmpty()) {
-            config.setAllowedOrigins(allowedOrigins.stream()
-                    .filter(o -> !o.contains("*"))
-                    .toList());
+        for (String origin : allowedOrigins) {
+            if (!origin.contains("*") && !patterns.contains(origin)) {
+                patterns.add(origin);
+            }
         }
+        config.setAllowedOriginPatterns(patterns);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
