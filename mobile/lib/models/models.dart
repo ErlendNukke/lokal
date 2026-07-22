@@ -250,5 +250,3 @@ const categoryOptions = [
   CategoryOption(ProductCategory.handmade, 'Käsitöö', '🎨'),
   CategoryOption(ProductCategory.other, 'Muu', '✨'),
 ];
-
-const radiusOptions = [5, 20, 50];

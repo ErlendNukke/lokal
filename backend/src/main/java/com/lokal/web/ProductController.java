@@ -29,7 +29,7 @@ public class ProductController {
     public List<ProductDto> search(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lng,
-            @RequestParam(required = false, defaultValue = "20") Integer radiusKm,
+            @RequestParam(required = false, defaultValue = "10") Integer radiusKm,
             @RequestParam(required = false) ProductCategory category,
             @RequestParam(required = false) String q
     ) {

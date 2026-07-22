@@ -1,14 +1,16 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+
+import 'package:lokal/core/config.dart';
 import 'package:lokal/models/models.dart';
+import 'package:lokal/screens/product_screen.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/widgets/product_card.dart';
-import 'package:lokal/core/config.dart';
-import 'package:lokal/screens/product_screen.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class BrowseScreen extends StatefulWidget {
   const BrowseScreen({super.key});
@@ -19,27 +21,92 @@ class BrowseScreen extends StatefulWidget {
 
 class _BrowseScreenState extends State<BrowseScreen> {
   final _search = TextEditingController();
+  final _mapController = MapController();
   ProductCategory? _category;
-  int _radiusKm = 20;
   List<Product> _products = [];
   bool _loading = true;
+  bool _locating = true;
   String? _error;
-
-  double get _lat =>
-      context.read<AuthService>().user?.latitude ?? AppConfig.defaultLat;
-  double get _lng =>
-      context.read<AuthService>().user?.longitude ?? AppConfig.defaultLng;
+  String? _locationNote;
+  late double _lat;
+  late double _lng;
+  bool _hasDeviceLocation = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+    final user = context.read<AuthService>().user;
+    _lat = user?.latitude ?? AppConfig.defaultLat;
+    _lng = user?.longitude ?? AppConfig.defaultLng;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _resolveLocation();
+      await _load();
+    });
   }
 
   @override
   void dispose() {
     _search.dispose();
+    _mapController.dispose();
     super.dispose();
+  }
+
+  Future<void> _resolveLocation() async {
+    setState(() {
+      _locating = true;
+      _locationNote = null;
+    });
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (!mounted) return;
+        setState(() {
+          _locating = false;
+          _locationNote = 'Asukohateenus on välja lülitatud — kasutan vaikeasukohta.';
+        });
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
+        setState(() {
+          _locating = false;
+          _locationNote = 'Asukohaluba puudub — kasutan vaikeasukohta.';
+        });
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 12),
+        ),
+      );
+      if (!mounted) return;
+      setState(() {
+        _lat = position.latitude;
+        _lng = position.longitude;
+        _hasDeviceLocation = true;
+        _locating = false;
+        _locationNote = null;
+      });
+      try {
+        _mapController.move(LatLng(_lat, _lng), 12);
+      } catch (_) {
+        // Map may not be ready yet; initialCenter updates on rebuild.
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _locating = false;
+        _locationNote = 'Asukohta ei õnnestunud määrata — kasutan vaikeasukohta.';
+      });
+    }
   }
 
   Future<void> _load() async {
@@ -51,7 +118,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
       final products = await context.read<MarketplaceService>().searchProducts(
             lat: _lat,
             lng: _lng,
-            radiusKm: _radiusKm,
+            radiusKm: AppConfig.radiusKm,
             category: _category,
             q: _search.text.trim(),
           );
@@ -69,12 +136,17 @@ class _BrowseScreenState extends State<BrowseScreen> {
     }
   }
 
+  Future<void> _refresh() async {
+    await _resolveLocation();
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Lokal')),
       body: RefreshIndicator(
-        onRefresh: _load,
+        onRefresh: _refresh,
         color: LokalColors.forest,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -88,9 +160,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
                 prefixIcon: Icon(Icons.search),
               ),
               onSubmitted: (_) => _load(),
-              onChanged: (_) {
-                // debounce-ish: reload on clear or after short delay via submit
-              },
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -122,27 +191,25 @@ class _BrowseScreenState extends State<BrowseScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Text('Raadius', style: TextStyle(color: LokalColors.muted, fontWeight: FontWeight.w600)),
+                Icon(
+                  _hasDeviceLocation ? Icons.my_location : Icons.location_searching,
+                  size: 18,
+                  color: LokalColors.muted,
+                ),
                 const SizedBox(width: 8),
-                for (final km in radiusOptions)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text('$km km'),
-                      selected: _radiusKm == km,
-                      onSelected: (_) {
-                        setState(() => _radiusKm = km);
-                        _load();
-                      },
-                      selectedColor: LokalColors.forest,
-                      labelStyle: TextStyle(
-                        color: _radiusKm == km ? Colors.white : LokalColors.ink,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                Expanded(
+                  child: Text(
+                    _locating
+                        ? 'Määran asukohta…'
+                        : (_locationNote ?? '${AppConfig.radiusKm} km raadius'),
+                    style: const TextStyle(color: LokalColors.muted, fontWeight: FontWeight.w600),
                   ),
-                const Spacer(),
-                IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
+                ),
+                IconButton(
+                  onPressed: _refresh,
+                  tooltip: 'Uuenda asukohta',
+                  icon: const Icon(Icons.refresh),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -151,17 +218,36 @@ class _BrowseScreenState extends State<BrowseScreen> {
               child: SizedBox(
                 height: 220,
                 child: FlutterMap(
+                  mapController: _mapController,
                   options: MapOptions(
                     initialCenter: LatLng(_lat, _lng),
-                    initialZoom: 11,
+                    initialZoom: 12,
                   ),
                   children: [
                     TileLayer(
                       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'ee.lokal.app',
                     ),
+                    CircleLayer(
+                      circles: [
+                        CircleMarker(
+                          point: LatLng(_lat, _lng),
+                          radius: AppConfig.radiusKm * 1000,
+                          useRadiusInMeter: true,
+                          color: LokalColors.forest.withValues(alpha: 0.12),
+                          borderStrokeWidth: 1.5,
+                          borderColor: LokalColors.forest.withValues(alpha: 0.45),
+                        ),
+                      ],
+                    ),
                     MarkerLayer(
                       markers: [
+                        Marker(
+                          point: LatLng(_lat, _lng),
+                          width: 44,
+                          height: 44,
+                          child: const _UserLocationMarker(),
+                        ),
                         for (final p in _products)
                           Marker(
                             point: LatLng(p.latitude, p.longitude),
@@ -190,7 +276,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
             const SizedBox(height: 20),
             Text('Lähedal', style: brandTitle(size: 24)),
             Text(
-              _loading ? 'Laen…' : '${_products.length} toodet · $_radiusKm km raadiuses',
+              _loading
+                  ? 'Laen…'
+                  : '${_products.length} toodet · ${AppConfig.radiusKm} km raadiuses',
               style: const TextStyle(color: LokalColors.muted),
             ),
             const SizedBox(height: 12),
@@ -202,8 +290,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
             else if (_error != null)
               Text(_error!, style: const TextStyle(color: LokalColors.danger))
             else if (_products.isEmpty)
-              const Text('Selles raadiuses tooteid ei leitud. Proovi suuremat raadiust.',
-                  style: TextStyle(color: LokalColors.muted))
+              const Text(
+                'Selles raadiuses tooteid ei leitud.',
+                style: TextStyle(color: LokalColors.muted),
+              )
             else
               ..._products.asMap().entries.map(
                     (e) => Padding(
@@ -224,6 +314,39 @@ class _BrowseScreenState extends State<BrowseScreen> {
   void _openProduct(Product product) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => ProductScreen(productId: product.id)),
+    );
+  }
+}
+
+class _UserLocationMarker extends StatelessWidget {
+  const _UserLocationMarker();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2F80ED).withValues(alpha: 0.22),
+            shape: BoxShape.circle,
+          ),
+        ),
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2F80ED),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2.5),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 6),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

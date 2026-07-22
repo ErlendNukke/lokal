@@ -4,8 +4,8 @@
 # Health
 curl -s http://localhost:8080/actuator/health
 
-# List nearby products (Tallinn, 20km)
-curl -s "http://localhost:8080/api/products?lat=59.437&lng=24.7536&radiusKm=20" | jq '.[].name'
+# List nearby products (Tallinn, 10km)
+curl -s "http://localhost:8080/api/products?lat=59.437&lng=24.7536&radiusKm=10" | jq '.[].name'
 
 # Login as buyer
 TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \

@@ -17,7 +17,7 @@ Tagline: *From nearby.*
 | Layer | Choice |
 |-------|--------|
 | Mobile UI | Flutter (iOS, Android, Web) |
-| API | Spring Boot 3.4 / Java 21 |
+| API | Spring Boot 4.1 / Java 25 |
 | DB | PostgreSQL (prod) / H2 in-memory (dev) |
 | Migrations | Liquibase |
 | Auth | Spring Security + JWT (Google stub ready) |
@@ -47,7 +47,7 @@ Buyer                    API                     Producer
 
 ### Frontend (`/mobile`)
 - Flutter app for iOS, Android, and Web
-- Browse (map + feed + categories + radius)
+- Browse (map + feed + categories, fixed 10 km)
 - Product detail + order
 - Auth (email + Google demo)
 - Orders (buyer + producer actions + reviews)
@@ -63,7 +63,7 @@ Buyer                    API                     Producer
 ## Location
 
 - Products store lat/lng (Estonia-focused sample around Tallinn/Tartu)
-- Radius filters: 5 / 20 / 50 km (Haversine in service layer)
+- Fixed 10 km search radius (Haversine in service layer)
 
 ## Next scalability steps
 

@@ -9,7 +9,7 @@ Mobile-first marketplace MVP connecting local producers with nearby customers.
 | Layer | Tech |
 |-------|------|
 | Mobile app | **Flutter** (iOS, Android, Web) |
-| API | Spring Boot 3 / Java 21 |
+| API | Spring Boot 4.1 / Java 25 |
 | DB | PostgreSQL (prod) / H2 (dev) |
 | Auth | JWT (+ Google demo stub) |
 | Maps | OpenStreetMap + `flutter_map` |
@@ -54,7 +54,7 @@ Password: `password123`
 ## App features
 
 - Browse nearby products on an Estonia-focused OSM map
-- Category + radius filters (5 / 20 / 50 km)
+- Category filters within a fixed 10 km radius
 - Product detail + order (pickup/delivery + message)
 - Producer dashboard (list products, upload photos)
 - Order accept / reject / complete + reviews

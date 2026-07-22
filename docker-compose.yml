@@ -31,7 +31,6 @@ services:
       DATABASE_USER: lokal
       DATABASE_PASSWORD: lokal
       JWT_SECRET: change-me-in-production-use-long-secret
-      CORS_ORIGINS: http://localhost:4200,http://localhost:8100
     ports:
       - "8080:8080"
     depends_on:
