@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ChatGPT → Cursor Bridge</title>
+    <style>
+      body {
+        margin: 0;
+        width: 320px;
+        font: 13px/1.4 system-ui, sans-serif;
+        background: #0f1410;
+        color: #e7efe8;
+        padding: 14px;
+      }
+      h1 { font-size: 14px; margin: 0 0 12px; }
+      label { display: block; margin: 10px 0 4px; color: #9aaf9e; }
+      input[type="text"], input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        border: 1px solid #2c3a30;
+        background: #1a221c;
+        color: #e7efe8;
+      }
+      .row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+      button {
+        margin-top: 14px;
+        width: 100%;
+        padding: 9px;
+        border: 0;
+        background: #6fcf97;
+        color: #0f1410;
+        font-weight: 650;
+        cursor: pointer;
+      }
+      #status { margin-top: 10px; color: #9aaf9e; min-height: 1.2em; }
+      #status.ok { color: #6fcf97; }
+      #status.err { color: #eb5757; }
+    </style>
+  </head>
+  <body>
+    <h1>ChatGPT → Cursor Bridge</h1>
+    <p style="margin:0 0 8px;color:#9aaf9e">
+      Fully automatic while enabled: new <code>CURSOR_ORDER</code> blocks in ChatGPT are sent to your local bridge with no confirm step.
+    </p>
+    <div class="row">
+      <input id="enabled" type="checkbox" />
+      <label for="enabled" style="margin:0;color:#e7efe8">Enabled</label>
+    </div>
+    <div class="row">
+      <input id="autoSend" type="checkbox" />
+      <label for="autoSend" style="margin:0;color:#e7efe8">Auto-send (no confirmation)</label>
+    </div>
+    <label for="bridgeUrl">Bridge URL</label>
+    <input id="bridgeUrl" type="text" />
+    <label for="bridgeToken">Bridge token</label>
+    <input id="bridgeToken" type="password" />
+    <button id="save" type="button">Save &amp; ping bridge</button>
+    <div id="status"></div>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

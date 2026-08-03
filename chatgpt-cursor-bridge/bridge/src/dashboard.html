@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChatGPT → Cursor Bridge</title>
+    <style>
+      :root {
+        --bg: #0f1410;
+        --panel: #1a221c;
+        --ink: #e7efe8;
+        --muted: #9aaf9e;
+        --accent: #6fcf97;
+        --warn: #f2c94c;
+        --bad: #eb5757;
+        --line: #2c3a30;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(1200px 600px at 10% -10%, #1d3a28 0%, transparent 55%),
+          var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+      }
+      main { max-width: 920px; margin: 0 auto; padding: 32px 20px 64px; }
+      h1 { font-size: 1.6rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+      .sub { color: var(--muted); margin-bottom: 24px; }
+      .grid { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); margin-bottom: 24px; }
+      .stat {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+      .stat b { display: block; font-size: 1.4rem; margin-top: 4px; }
+      .jobs { display: grid; gap: 10px; }
+      .job {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+      }
+      .meta { color: var(--muted); font-size: 0.85rem; display: flex; gap: 12px; flex-wrap: wrap; }
+      .status { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.75rem; }
+      .status.succeeded { color: var(--accent); }
+      .status.failed, .status.skipped { color: var(--bad); }
+      .status.running, .status.queued { color: var(--warn); }
+      .task { margin: 10px 0; white-space: pre-wrap; }
+      a { color: var(--accent); }
+      code { background: #0c100d; padding: 1px 6px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>ChatGPT → Cursor Bridge</h1>
+      <p class="sub">
+        Fully automatic mode. Orders tagged <code>CURSOR_ORDER</code> in ChatGPT
+        are queued here and sent to Cursor.
+      </p>
+      <div class="grid">
+        <div class="stat">Mode <b id="mode">…</b></div>
+        <div class="stat">Jobs <b id="count">0</b></div>
+        <div class="stat">Live <b id="live">connecting</b></div>
+      </div>
+      <div class="jobs" id="jobs"></div>
+    </main>
+    <script>
+      const jobsEl = document.getElementById("jobs");
+      const modeEl = document.getElementById("mode");
+      const countEl = document.getElementById("count");
+      const liveEl = document.getElementById("live");
+      const token = new URLSearchParams(location.search).get("token") || "";
+      const withToken = (path) =>
+        token ? `${path}${path.includes("?") ? "&" : "?"}token=${encodeURIComponent(token)}` : path;
+
+      function renderJob(job) {
+        return `
+          <article class="job" data-id="${job.id}">
+            <div class="meta">
+              <span class="status ${job.status}">${job.status}</span>
+              <span>${new Date(job.createdAt).toLocaleString()}</span>
+              <span>${job.source || "unknown"}</span>
+              ${job.agentId ? `<span>agent ${job.agentId}</span>` : ""}
+            </div>
+            <div class="task">${escapeHtml(job.order.task)}</div>
+            <div class="meta">
+              ${job.prUrl ? `<a href="${job.prUrl}" target="_blank" rel="noreferrer">Pull request</a>` : ""}
+              ${job.resultSummary ? `<span>${escapeHtml(job.resultSummary)}</span>` : ""}
+              ${job.error ? `<span>${escapeHtml(job.error)}</span>` : ""}
+            </div>
+          </article>
+        `;
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
+
+      function upsert(job) {
+        const el = jobsEl.querySelector(`[data-id="${job.id}"]`);
+        const html = renderJob(job);
+        if (el) el.outerHTML = html;
+        else jobsEl.insertAdjacentHTML("afterbegin", html);
+        countEl.textContent = String(jobsEl.children.length);
+      }
+
+      async function boot() {
+        if (!token) {
+          liveEl.textContent = "missing token";
+          jobsEl.innerHTML =
+            "<p class='sub'>Open the dashboard URL printed by the bridge server (it includes <code>?token=...</code>).</p>";
+          return;
+        }
+        const health = await fetch("/health").then((r) => r.json());
+        modeEl.textContent = health.mode;
+        const list = await fetch(withToken("/jobs")).then(async (r) => {
+          if (!r.ok) throw new Error(await r.text());
+          return r.json();
+        });
+        jobsEl.innerHTML = list.jobs.map(renderJob).join("");
+        countEl.textContent = String(list.jobs.length);
+
+        const es = new EventSource(withToken("/events"));
+        es.onopen = () => { liveEl.textContent = "yes"; };
+        es.onerror = () => { liveEl.textContent = "reconnecting"; };
+        es.addEventListener("job", (ev) => {
+          upsert(JSON.parse(ev.data));
+        });
+      }
+
+      boot().catch((err) => {
+        liveEl.textContent = "error";
+        jobsEl.textContent = String(err);
+      });
+    </script>
+  </body>
+</html>

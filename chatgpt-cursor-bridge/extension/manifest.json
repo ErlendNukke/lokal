@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT → Cursor Bridge",
+  "description": "Fully automatic: detect CURSOR_ORDER blocks in ChatGPT (including Voice transcripts) and send them to a local Cursor bridge.",
+  "version": "1.0.0",
+  "permissions": ["storage", "notifications"],
+  "host_permissions": [
+    "http://127.0.0.1:3847/*",
+    "http://localhost:3847/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "ChatGPT → Cursor Bridge",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "popup.html",
+    "open_in_tab": false
+  }
+}

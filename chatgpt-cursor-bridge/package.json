@@ -1,0 +1,12 @@
+{
+  "name": "chatgpt-cursor-bridge",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Fully automatic ChatGPT Voice → Cursor Agent bridge",
+  "scripts": {
+    "dev": "npm run dev --prefix bridge",
+    "start": "npm run start --prefix bridge",
+    "test": "npm test --prefix bridge",
+    "typecheck": "npm run typecheck --prefix bridge"
+  }
+}
