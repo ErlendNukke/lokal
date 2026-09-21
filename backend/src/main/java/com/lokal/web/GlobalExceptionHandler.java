@@ -21,7 +21,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
-        return error(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        // SecurityUtils uses IllegalStateException only for missing auth; storage/S3 code uses it for infra failures.
+        HttpStatus status = "Not authenticated".equals(ex.getMessage())
+                ? HttpStatus.UNAUTHORIZED
+                : HttpStatus.INTERNAL_SERVER_ERROR;
+        return error(status, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
