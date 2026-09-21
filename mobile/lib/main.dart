@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lokal/core/config.dart';
 import 'package:lokal/screens/home_shell.dart';
 import 'package:lokal/services/api_client.dart';
 import 'package:lokal/services/auth_service.dart';
@@ -10,7 +11,9 @@ import 'package:provider/provider.dart';
 String resolveApiBaseUrl() {
   const fromEnv = String.fromEnvironment('API_BASE_URL', defaultValue: '');
   if (fromEnv.isNotEmpty) return fromEnv;
-  if (kIsWeb) return 'http://localhost:8080';
+  if (kIsWeb) {
+    return kReleaseMode ? AppConfig.productionApiBaseUrl : 'http://localhost:8080';
+  }
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
       return 'http://10.0.2.2:8080';
