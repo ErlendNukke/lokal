@@ -5,8 +5,13 @@ import 'package:lokal/theme/app_theme.dart';
 
 /// Network product photo with a visible loading state and tap-to-retry on error.
 ///
-/// [CachedNetworkImage] defaults to an empty placeholder; on Flutter web that
-/// often reads as a solid black box while bytes decode or after a failed load.
+/// On web, [CachedNetworkImage] defaults to [ImageRenderMethodForWeb.HtmlImage]
+/// (CanvasKit textures). With missing or broken WebGL that can stay a solid black
+/// box even after bytes arrive. We use [Image.network] with
+/// [WebHtmlElementStrategy.prefer] so the browser paints a real `<img>`.
+///
+/// Everywhere else we keep [CachedNetworkImage] for disk caching and use an
+/// explicit loading shell instead of its empty default placeholder.
 class ProductNetworkImage extends StatefulWidget {
   const ProductNetworkImage({
     super.key,
@@ -42,7 +47,9 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
   }
 
   Future<void> _retry(String url) async {
-    await CachedNetworkImage.evictFromCache(url);
+    if (!kIsWeb) {
+      await CachedNetworkImage.evictFromCache(url);
+    }
     if (!mounted) return;
     setState(() => _reloadGeneration++);
   }
@@ -119,10 +126,33 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _webImage() {
+    return Image.network(
+      widget.imageUrl,
+      width: widget.width,
+      height: widget.height,
+      fit: widget.fit,
+      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          return child;
+        }
+        final total = loadingProgress.expectedTotalBytes;
+        final loaded = loadingProgress.cumulativeBytesLoaded;
+        final fraction = total != null && total > 0 ? loaded / total : null;
+        return _loadingShell(progress: fraction);
+      },
+      errorBuilder: (context, error, stackTrace) {
+        if (kDebugMode) {
+          debugPrint('ProductNetworkImage (web) failed for ${widget.imageUrl}: $error');
+        }
+        return _errorShell(widget.imageUrl);
+      },
+    );
+  }
+
+  Widget _cachedImage() {
     return CachedNetworkImage(
-      key: ValueKey('${widget.imageUrl}#$_reloadGeneration'),
       imageUrl: widget.imageUrl,
       width: widget.width,
       height: widget.height,
@@ -137,6 +167,15 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
         }
         return _errorShell(url);
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final image = kIsWeb ? _webImage() : _cachedImage();
+    return KeyedSubtree(
+      key: ValueKey('${widget.imageUrl}#$_reloadGeneration'),
+      child: image,
     );
   }
 }
