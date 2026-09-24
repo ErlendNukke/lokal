@@ -1,10 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
-import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
 class OrdersScreen extends StatefulWidget {
@@ -169,7 +169,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                     if (o.productPhoto != null)
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
-                                        child: ProductNetworkImage(
+                                        child: CachedNetworkImage(
                                           imageUrl: o.productPhoto!,
                                           width: 72,
                                           height: 72,

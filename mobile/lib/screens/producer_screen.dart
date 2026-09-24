@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lokal/core/config.dart';
@@ -7,7 +8,6 @@ import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/utils/prepare_image_upload.dart';
 import 'package:lokal/widgets/product_card.dart';
-import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
 class ProducerScreen extends StatefulWidget {
@@ -224,7 +224,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: ProductNetworkImage(imageUrl: _photoUrl!, height: 140, width: double.infinity, fit: BoxFit.cover),
+                        child: CachedNetworkImage(imageUrl: _photoUrl!, height: 140, width: double.infinity, fit: BoxFit.cover),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -252,7 +252,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                   borderRadius: BorderRadius.circular(10),
                   child: p.photo.isEmpty
                       ? Container(width: 56, height: 56, color: LokalColors.beigeDeep)
-                      : ProductNetworkImage(imageUrl: p.photo, width: 56, height: 56, fit: BoxFit.cover),
+                      : CachedNetworkImage(imageUrl: p.photo, width: 56, height: 56, fit: BoxFit.cover),
                 ),
                 title: Text(p.name),
                 subtitle: Text('${p.price.toStringAsFixed(2)} € / ${unitApi(p.unit)} · ${p.quantity} saadaval'),

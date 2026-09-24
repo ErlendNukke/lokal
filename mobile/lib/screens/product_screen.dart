@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lokal/core/config.dart';
 import 'package:lokal/models/models.dart';
@@ -5,7 +6,6 @@ import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
-import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -112,7 +112,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     if (product!.photo.isNotEmpty)
                       AspectRatio(
                         aspectRatio: 4 / 3,
-                        child: ProductNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
+                        child: CachedNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
                       )
                     else
                       Container(height: 220, color: LokalColors.beigeDeep),
