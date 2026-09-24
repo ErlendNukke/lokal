@@ -9,8 +9,9 @@ import 'package:lokal/theme/app_theme.dart';
 
 /// Network product photo with loading placeholder and tap-to-retry on error.
 ///
-/// On Flutter web, [CachedNetworkImage] defaults to [ImageRenderMethodForWeb.HtmlImage],
-/// which is flaky on mobile Safari (permanent black tiles). We use [HttpGet] there instead.
+/// On Flutter web (CanvasKit), decoding via [CachedNetworkImage] / [HttpGet] is unreliable
+/// on mobile Safari (solid black tiles). Web uses [Image.network] with
+/// [WebHtmlElementStrategy.prefer] (real HTML `<img>` elements).
 ///
 /// Every instance is clipped to a fixed box: explicit [width]/[height] when provided,
 /// otherwise the tight constraints from the parent (e.g. [AspectRatio]).
@@ -71,7 +72,11 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
   }
 
   Future<void> _retry(String url) async {
-    await CachedNetworkImage.evictFromCache(url);
+    if (kIsWeb) {
+      await NetworkImage(url).evict();
+    } else {
+      await CachedNetworkImage.evictFromCache(url);
+    }
     if (!mounted) return;
     setState(() {
       _reloadGeneration++;
@@ -147,6 +152,35 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
       return _errorShell(widget.imageUrl, timedOut: true);
     }
 
+    if (kIsWeb) {
+      return Image.network(
+        widget.imageUrl,
+        key: ValueKey('${widget.imageUrl}#$_reloadGeneration'),
+        width: width,
+        height: height,
+        fit: widget.fit,
+        webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+        gaplessPlayback: true,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            _onImageReady();
+            return child;
+          }
+          final total = loadingProgress.expectedTotalBytes;
+          final loaded = loadingProgress.cumulativeBytesLoaded;
+          final progress = total != null && total > 0 ? loaded / total : null;
+          return _placeholder(progress: progress);
+        },
+        errorBuilder: (context, error, stackTrace) {
+          _timeoutTimer?.cancel();
+          if (kDebugMode) {
+            debugPrint('ProductNetworkImage failed for ${widget.imageUrl}: $error');
+          }
+          return _errorShell(widget.imageUrl);
+        },
+      );
+    }
+
     return CachedNetworkImage(
       key: ValueKey('${widget.imageUrl}#$_reloadGeneration'),
       imageUrl: widget.imageUrl,
@@ -154,8 +188,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
       height: height,
       fit: widget.fit,
       fadeInDuration: const Duration(milliseconds: 280),
-      imageRenderMethodForWeb:
-          kIsWeb ? ImageRenderMethodForWeb.HttpGet : ImageRenderMethodForWeb.HtmlImage,
+      imageRenderMethodForWeb: ImageRenderMethodForWeb.HtmlImage,
       progressIndicatorBuilder: (context, url, downloadProgress) {
         return _placeholder(progress: downloadProgress.progress);
       },
