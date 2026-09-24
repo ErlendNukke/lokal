@@ -35,7 +35,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   void didUpdateWidget(covariant OrdersScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isActive) {
+    if (widget.isActive && !oldWidget.isActive) {
       _ensureAndLoad();
     }
   }
@@ -138,31 +138,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 preferredSize: const Size.fromHeight(48),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FilledButton.tonal(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: !_selling ? LokalColors.beigeDeep : null,
+                  child: Semantics(
+                    explicitChildNodes: true,
+                    child: SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(
+                          value: false,
+                          label: Text('Ostan'),
                         ),
-                        onPressed: () {
-                          setState(() => _selling = false);
-                          _load();
-                        },
-                        child: const Text('Ostan'),
-                      ),
-                      const SizedBox(width: 8),
-                      FilledButton.tonal(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: _selling ? LokalColors.beigeDeep : null,
+                        ButtonSegment(
+                          value: true,
+                          label: Text('Müün'),
                         ),
-                        onPressed: () {
-                          setState(() => _selling = true);
-                          _load();
-                        },
-                        child: const Text('Müün'),
-                      ),
-                    ],
+                      ],
+                      selected: {_selling},
+                      onSelectionChanged: (s) {
+                        setState(() => _selling = s.first);
+                        _load();
+                      },
+                    ),
                   ),
                 ),
               )
@@ -220,7 +214,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                           children: [
                                             Text(o.productName, style: brandTitle(size: 18)),
                                             Text(
-                                              '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)}'
+                                              '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitLabel(o.unit)}'
                                               '${_selling ? ' · ${o.totalPrice.toStringAsFixed(2)} €' : ''}',
                                               style: const TextStyle(color: LokalColors.muted),
                                             ),

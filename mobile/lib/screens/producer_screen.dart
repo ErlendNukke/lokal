@@ -284,7 +284,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                       : ProductNetworkImage(imageUrl: p.photo, width: 56, height: 56, fit: BoxFit.cover),
                 ),
                 title: Text(p.name),
-                subtitle: Text('${p.price.toStringAsFixed(2)} € / ${unitApi(p.unit)} · ${p.quantity} saadaval'),
+                subtitle: Text('${p.price.toStringAsFixed(2)} € / ${unitLabel(p.unit)} · ${p.quantity} saadaval'),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline, color: LokalColors.danger),
                   onPressed: () => _remove(p),

@@ -84,7 +84,7 @@ class ProductCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${product.price.toStringAsFixed(2)} € / ${unitApi(product.unit)}',
+                          '${product.price.toStringAsFixed(2)} € / ${unitLabel(product.unit)}',
                           style: const TextStyle(
                             color: LokalColors.forestDark,
                             fontWeight: FontWeight.w700,
@@ -104,7 +104,7 @@ class ProductCard extends StatelessWidget {
 }
 
 class BrandHeader extends StatelessWidget {
-  const BrandHeader({super.key, this.subtitle = 'From nearby.'});
+  const BrandHeader({super.key, this.subtitle = 'Lähedalt.'});
 
   final String subtitle;
 
