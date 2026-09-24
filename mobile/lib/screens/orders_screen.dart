@@ -3,7 +3,9 @@ import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/copy/order_payment_copy.dart';
 import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/payment_at_handover_hint.dart';
 import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
@@ -183,9 +185,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                         children: [
                                           Text(o.productName, style: brandTitle(size: 18)),
                                           Text(
-                                            '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)} · ${o.totalPrice.toStringAsFixed(2)} €',
+                                            '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)}'
+                                            '${_selling ? ' · ${o.totalPrice.toStringAsFixed(2)} €' : ''}',
                                             style: const TextStyle(color: LokalColors.muted),
                                           ),
+                                          if (!_selling)
+                                            Text(
+                                              '${OrderPaymentCopy.buyerOrderPaymentLine} · ${o.totalPrice.toStringAsFixed(2)} €',
+                                              style: PaymentAtHandoverHint.style,
+                                            ),
+                                          if (_selling)
+                                            const PaymentAtHandoverHint(
+                                              text: OrderPaymentCopy.producerOrderPaymentHint,
+                                            ),
                                           Text(
                                             o.fulfillment == FulfillmentType.pickup
                                                 ? 'Järeletulemine'
