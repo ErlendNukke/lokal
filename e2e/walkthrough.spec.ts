@@ -109,19 +109,19 @@ async function leaveProductDetail(page: Page) {
 
 async function openAuthFromProfile(page: Page) {
   await tapBottomNav(page, 'Profiil');
-  // Visiting Profiil while logged out opens the auth sheet automatically.
-  const onAuth = await page.getByRole('button', { name: 'Loo konto' }).isVisible().catch(() => false);
-  if (!onAuth) {
-    const loginBtn = page.getByRole('button', { name: 'Logi sisse' });
-    if (await loginBtn.isVisible().catch(() => false)) {
-      await loginBtn.click();
-    }
+  const onRegisterForm = await page.getByRole('button', { name: 'Loo konto' }).isVisible().catch(() => false);
+  if (onRegisterForm) return;
+  const profileLogin = page.getByRole('button', { name: 'Logi sisse' }).first();
+  if (await profileLogin.isVisible().catch(() => false)) {
+    await profileLogin.click();
   }
 }
 
 async function registerAccount(page: Page, opts: { name: string; email: string; role?: 'Ostja' | 'Tootja' | 'Mõlemad' }) {
   await openAuthFromProfile(page);
-  await page.getByRole('button', { name: 'Registreeru' }).click();
+  const regTab = page.getByRole('button', { name: 'Registreeru' });
+  await expect(regTab).toBeVisible({ timeout: 120_000 });
+  await regTab.click();
   if (opts.role) {
     await page.getByRole('button', { name: new RegExp(`^Roll\\s`) }).click();
     await page.getByRole('menuitem', { name: opts.role }).click({ timeout: 10_000 });
@@ -226,31 +226,7 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     const email = `e2e-${Date.now()}@lokal.test`;
     const productName = `E2E Tomat ${Date.now()}`;
 
-    // (c) Browse Avasta as guest first (map + list + detail)
-    await screenshot(page, '01-browse-guest.png');
-    await expect(page.locator('body')).toContainText(/\d+ toodet/, { timeout: 120_000 });
-    await screenshot(page, '07-browse-map-and-list.png');
-    const productNameOnMap = await firstProductName(request);
-    const search = page.getByRole('textbox', { name: 'Otsi maasikaid, mett, leiba…' });
-    await search.click();
-    await search.pressSequentially(productNameOnMap.slice(0, 12), { delay: 10 });
-    await Promise.all([
-      page.waitForResponse(
-        (r) => r.url().includes('/api/products') && r.request().method() === 'GET' && r.ok(),
-        { timeout: 90_000 },
-      ),
-      search.press('Enter'),
-    ]);
-    const guestProduct = page.getByRole('button', { name: new RegExp(productNameOnMap.slice(0, 8)) });
-    await expect(guestProduct).toBeVisible({ timeout: 90_000 });
-    await guestProduct.click();
-    await expect(page.getByText('Telli', { exact: true })).toBeVisible();
-    await screenshot(page, '08-product-detail.png');
-    await page.goto('/', { waitUntil: 'load' });
-    await waitForApp(page);
-    await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 60_000 });
-
-    // (a) Sign up and profile
+    // (a) Sign up and profile (before guest browse so CI has time budget for the full flow)
     await registerAccount(page, { name: 'E2E Kasutaja', email });
     await screenshot(page, '02-signup-landed-profile.png');
     await page.getByRole('button', { name: /^Roll/ }).click();
@@ -298,6 +274,30 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     );
     await expect(page.getByRole('button', { name: 'Sulge' })).toBeHidden({ timeout: 30_000 });
     await screenshot(page, '06-producer-product-listed.png');
+
+    // (c) Browse Avasta as guest (map + list + detail)
+    await logout(page);
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForApp(page);
+    await screenshot(page, '01-browse-guest.png');
+    await expect(page.locator('body')).toContainText(/\d+ toodet/, { timeout: 120_000 });
+    await screenshot(page, '07-browse-map-and-list.png');
+    const productNameOnMap = await firstProductName(request);
+    const search = page.getByRole('textbox', { name: 'Otsi maasikaid, mett, leiba…' });
+    await search.click();
+    await search.pressSequentially(productNameOnMap.slice(0, 12), { delay: 10 });
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().includes('/api/products') && r.request().method() === 'GET' && r.ok(),
+        { timeout: 90_000 },
+      ),
+      search.press('Enter'),
+    ]);
+    const guestProduct = page.getByRole('button', { name: new RegExp(productNameOnMap.slice(0, 8)) });
+    await expect(guestProduct).toBeVisible({ timeout: 90_000 });
+    await guestProduct.click();
+    await expect(page.getByText('Telli', { exact: true })).toBeVisible();
+    await screenshot(page, '08-product-detail.png');
 
     // (d) Mari orders from another producer (Liisa, Tallinn)
     await logout(page);
