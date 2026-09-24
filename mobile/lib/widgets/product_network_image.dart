@@ -1,17 +1,20 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart'
+    show ImageRenderMethodForWeb;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lokal/theme/app_theme.dart';
 
 /// Network product photo with a visible loading state and tap-to-retry on error.
 ///
-/// On web, [CachedNetworkImage] defaults to [ImageRenderMethodForWeb.HtmlImage]
-/// (CanvasKit textures). With missing or broken WebGL that can stay a solid black
-/// box even after bytes arrive. We use [Image.network] with
-/// [WebHtmlElementStrategy.prefer] so the browser paints a real `<img>`.
-///
-/// Everywhere else we keep [CachedNetworkImage] for disk caching and use an
-/// explicit loading shell instead of its empty default placeholder.
+/// On Flutter web, raw [CachedNetworkImage] uses [ImageRenderMethodForWeb.HtmlImage]
+/// by default. That path (and stacking many DOM platform views in a list) is flaky
+/// on mobile Safari and can show permanent black tiles when decode/WebGL misbehaves
+/// without surfacing an [errorBuilder]. We load via [ImageRenderMethodForWeb.HttpGet]
+/// first (bytes + cache manager), keep a beige underlay until the first frame lands,
+/// time out stuck loads, and fall back to a plain `<img>` after repeated retries.
 class ProductNetworkImage extends StatefulWidget {
   const ProductNetworkImage({
     super.key,
@@ -31,30 +34,87 @@ class ProductNetworkImage extends StatefulWidget {
 }
 
 class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTickerProviderStateMixin {
+  static const _loadTimeout = Duration(seconds: 25);
+
   int _reloadGeneration = 0;
+  int _retryCount = 0;
+  bool _useDomImgFallback = false;
+  bool _hasFrame = false;
+  bool _loadFailed = false;
+  bool _loadTimedOut = false;
+  Timer? _timeoutTimer;
   late final AnimationController _shimmer;
 
   @override
   void initState() {
     super.initState();
     _shimmer = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat();
+    _armLoadTimeout();
   }
 
   @override
   void dispose() {
+    _timeoutTimer?.cancel();
     _shimmer.dispose();
     super.dispose();
   }
 
+  void _armLoadTimeout() {
+    _timeoutTimer?.cancel();
+    _loadTimedOut = false;
+    _timeoutTimer = Timer(_loadTimeout, () {
+      if (!mounted || _hasFrame) return;
+      setState(() => _loadTimedOut = true);
+      if (kDebugMode) {
+        debugPrint('ProductNetworkImage timed out for ${widget.imageUrl}');
+      }
+    });
+  }
+
+  void _onFrameReady() {
+    if (_hasFrame) return;
+    _timeoutTimer?.cancel();
+    setState(() {
+      _hasFrame = true;
+      _loadTimedOut = false;
+      _loadFailed = false;
+    });
+  }
+
+  void _onLoadError(Object error) {
+    if (!mounted) return;
+    _timeoutTimer?.cancel();
+    setState(() {
+      _loadFailed = true;
+      _hasFrame = false;
+    });
+    if (kDebugMode) {
+      debugPrint('ProductNetworkImage failed for ${widget.imageUrl}: $error');
+    }
+  }
+
   Future<void> _retry(String url) async {
+    _retryCount++;
+    final switchToDom = kIsWeb && _retryCount >= 2;
     if (!kIsWeb) {
+      await CachedNetworkImage.evictFromCache(url);
+    } else {
       await CachedNetworkImage.evictFromCache(url);
     }
     if (!mounted) return;
-    setState(() => _reloadGeneration++);
+    setState(() {
+      _reloadGeneration++;
+      _useDomImgFallback = switchToDom;
+      _hasFrame = false;
+      _loadFailed = false;
+      _loadTimedOut = false;
+    });
+    _armLoadTimeout();
   }
 
   bool get _compact => widget.width != null && widget.width! < 72;
+
+  bool get _showErrorShell => _loadFailed || _loadTimedOut;
 
   Widget _loadingShell({double? progress}) {
     return Stack(
@@ -109,7 +169,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
                     const Icon(Icons.image_not_supported_outlined, color: LokalColors.muted, size: 34),
                     const SizedBox(height: 8),
                     Text(
-                      'Foto ei laadinud',
+                      _loadTimedOut ? 'Foto laadib liiga kaua' : 'Foto ei laadinud',
                       style: TextStyle(color: LokalColors.muted, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
@@ -126,28 +186,67 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
     );
   }
 
-  Widget _webImage() {
-    return Image.network(
-      widget.imageUrl,
-      width: widget.width,
-      height: widget.height,
-      fit: widget.fit,
-      webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
+  Widget _frameGate({required Widget image}) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _loadingShell(),
+        if (!_showErrorShell)
+          Opacity(
+            opacity: _hasFrame ? 1 : 0,
+            child: image,
+          ),
+        if (_showErrorShell) _errorShell(widget.imageUrl),
+      ],
+    );
+  }
+
+  Widget _webDomImage() {
+    return _frameGate(
+      image: Image.network(
+        widget.imageUrl,
+        width: widget.width,
+        height: widget.height,
+        fit: widget.fit,
+        webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+        gaplessPlayback: true,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (frame != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _onFrameReady());
+          }
           return child;
-        }
-        final total = loadingProgress.expectedTotalBytes;
-        final loaded = loadingProgress.cumulativeBytesLoaded;
-        final fraction = total != null && total > 0 ? loaded / total : null;
-        return _loadingShell(progress: fraction);
-      },
-      errorBuilder: (context, error, stackTrace) {
-        if (kDebugMode) {
-          debugPrint('ProductNetworkImage (web) failed for ${widget.imageUrl}: $error');
-        }
-        return _errorShell(widget.imageUrl);
-      },
+        },
+        errorBuilder: (context, error, stackTrace) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _onLoadError(error));
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _webCachedBytesImage() {
+    return _frameGate(
+      image: Image(
+        image: CachedNetworkImageProvider(
+          widget.imageUrl,
+          imageRenderMethodForWeb: ImageRenderMethodForWeb.HttpGet,
+          errorListener: _onLoadError,
+        ),
+        width: widget.width,
+        height: widget.height,
+        fit: widget.fit,
+        gaplessPlayback: true,
+        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+          if (frame != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _onFrameReady());
+          }
+          return child;
+        },
+        errorBuilder: (context, error, stackTrace) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _onLoadError(error));
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
@@ -172,9 +271,15 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    final image = kIsWeb ? _webImage() : _cachedImage();
+    final Widget image;
+    if (kIsWeb) {
+      image = _useDomImgFallback ? _webDomImage() : _webCachedBytesImage();
+    } else {
+      image = _cachedImage();
+    }
+
     return KeyedSubtree(
-      key: ValueKey('${widget.imageUrl}#$_reloadGeneration'),
+      key: ValueKey('${widget.imageUrl}#$_reloadGeneration#dom=$_useDomImgFallback'),
       child: image,
     );
   }
