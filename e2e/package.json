@@ -1,0 +1,12 @@
+{
+  "name": "lokal-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:walkthrough": "playwright test walkthrough.spec.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}
