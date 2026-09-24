@@ -8,7 +8,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARTIFACTS = process.env.WALKTHROUGH_DIR ?? '/opt/cursor/artifacts/walkthrough';
 const API_BASE = process.env.API_BASE_URL ?? 'http://localhost:8080';
 const PASSWORD = 'password123';
-const PRODUCT_FROM_LIISA = 'Käsitsi valmistatud savikauss';
 const MARI_BREAD = 'Kodune juuretisleib';
 
 function shotPath(name: string) {
@@ -52,6 +51,7 @@ async function tapBottomNav(page: Page, label: string) {
 
 async function openProductFromBrowse(page: Page, productName: string) {
   await tapBottomNav(page, 'Avasta');
+  await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 60_000 });
   await expect(page.locator('body')).toContainText(/\d+ toodet/, { timeout: 120_000 });
   const search = page.getByRole('textbox', { name: 'Otsi maasikaid, mett, leiba…' });
   await search.click();
@@ -150,26 +150,6 @@ async function registerAccount(page: Page, opts: { name: string; email: string; 
   await expect(page.getByRole('button', { name: 'Logi välja' })).toBeVisible({ timeout: 60_000 });
 }
 
-async function placeOrderApi(request: APIRequestContext, buyerEmail: string, productName: string) {
-  const login = await request.post(`${API_BASE}/api/auth/login`, {
-    data: { email: buyerEmail, password: PASSWORD },
-  });
-  expect(login.ok()).toBeTruthy();
-  const { token } = (await login.json()) as { token: string };
-  const productsRes = await request.get(`${API_BASE}/api/products`, {
-    params: { lat: '59.437', lng: '24.7536', radiusKm: '25' },
-  });
-  expect(productsRes.ok()).toBeTruthy();
-  const products = (await productsRes.json()) as { id: string; name: string }[];
-  const product = products.find((p) => p.name === productName);
-  expect(product, `Product not found: ${productName}`).toBeTruthy();
-  const order = await request.post(`${API_BASE}/api/orders`, {
-    headers: { Authorization: `Bearer ${token}` },
-    data: { productId: product!.id, quantity: 1, fulfillment: 'PICKUP', message: 'E2E' },
-  });
-  expect(order.ok()).toBeTruthy();
-}
-
 async function loginAccount(page: Page, _request: APIRequestContext, email: string) {
   const demoChip =
     email === 'mari@lokal.app'
@@ -180,7 +160,7 @@ async function loginAccount(page: Page, _request: APIRequestContext, email: stri
   expect(demoChip, `Demo login chip missing for ${email}`).toBeTruthy();
 
   await page.evaluate(() => localStorage.clear());
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('/', { waitUntil: 'load' });
   await waitForApp(page);
   await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 120_000 });
   await tapBottomNav(page, 'Profiil');
@@ -227,6 +207,7 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     });
     await page.reload();
     await waitForApp(page);
+    await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 180_000 });
     await page
       .waitForResponse((r) => r.url().includes('/api/products') && r.request().method() === 'GET' && r.ok(), {
         timeout: 120_000,
@@ -309,33 +290,46 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     await expect(page.getByText('Telli', { exact: true })).toBeVisible();
     await screenshot(page, '08-product-detail.png');
 
-    // (d) Mari orders from another producer (Liisa, Tallinn)
+    // (d) Anna (buyer-only) orders from Mari — primary customer flow
     await page.goto('/', { waitUntil: 'load' });
     await waitForApp(page);
-    await loginAccount(page, request, 'mari@lokal.app');
-    await openProductFromBrowse(page, PRODUCT_FROM_LIISA);
-    await screenshot(page, '09-browse-as-mari.png');
+    await loginAccount(page, request, 'anna@lokal.app');
+    await openProductFromBrowse(page, MARI_BREAD);
+    await screenshot(page, '09-browse-as-anna.png');
     await fillField(page, 'Sõnum tootjale', 'E2E tellimus');
     await screenshot(page, '10-order-form.png');
-    await clickOrderSubmit(page);
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().includes('/api/orders') && r.request().method() === 'POST' && r.ok(),
+        { timeout: 60_000 },
+      ),
+      clickOrderSubmit(page),
+    ]);
     await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 60_000 });
     await screenshot(page, '11-order-confirmation-snackbar.png');
 
     await tapBottomNav(page, 'Tellimused');
-    const ostanTab = page.getByRole('button', { name: 'Ostan', exact: true });
-    if (await ostanTab.isVisible().catch(() => false)) {
-      await ostanTab.click();
-    }
     await expect(page.getByRole('button', { name: 'Tühista' }).first()).toBeVisible({ timeout: 60_000 });
     await expect(page.getByLabel(/Tasumine kohapeal/).first()).toBeVisible();
     await expect(page.locator('body')).toContainText('Ootel');
     await screenshot(page, '12-orders-buyer-pending.png');
 
-    // Two pending orders on Mari’s bread (API; Anna is buyer-only) for seller accept/decline UI.
-    await placeOrderApi(request, 'anna@lokal.app', MARI_BREAD);
-    await placeOrderApi(request, 'anna@lokal.app', MARI_BREAD);
+    // Second pending order on Mari’s bread (UI) for seller accept/decline
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForApp(page);
+    await openProductFromBrowse(page, MARI_BREAD);
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().includes('/api/orders') && r.request().method() === 'POST' && r.ok(),
+        { timeout: 60_000 },
+      ),
+      clickOrderSubmit(page),
+    ]);
+    await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 60_000 });
 
-    // (e) Mari as producer: accept one, decline another (still logged in as Mari)
+    // (e) Mari as producer: accept one, decline another
+    await logout(page);
+    await loginAccount(page, request, 'mari@lokal.app');
     await tapBottomNav(page, 'Tellimused');
     await page.getByRole('button', { name: 'Müün', exact: true }).click();
     await screenshot(page, '13-orders-seller-inbox.png');
@@ -357,25 +351,21 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     });
     await screenshot(page, '15-buyer-sees-updated-status.png');
 
-    // Mari cancels a pending order as buyer
-    await logout(page);
-    await loginAccount(page, request, 'mari@lokal.app');
+    // Anna cancels a pending order (buyer-only customer flow)
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForApp(page);
+    await openProductFromBrowse(page, MARI_BREAD);
+    await Promise.all([
+      page.waitForResponse(
+        (r) => r.url().includes('/api/orders') && r.request().method() === 'POST' && r.ok(),
+        { timeout: 60_000 },
+      ),
+      clickOrderSubmit(page),
+    ]);
     await tapBottomNav(page, 'Tellimused');
+    await page.getByRole('button', { name: 'Tühista' }).first().click();
     await page.waitForTimeout(1000);
-    const cancelBtn = page.getByRole('button', { name: 'Tühista' }).first();
-    if (await cancelBtn.isVisible().catch(() => false)) {
-      await cancelBtn.click();
-      await page.waitForTimeout(1000);
-      await expect(page.getByText('Tühistatud').first()).toBeVisible();
-      await screenshot(page, '16-buyer-cancelled-order.png');
-    } else {
-      // Place another order to cancel
-      await openProductFromBrowse(page, PRODUCT_FROM_LIISA);
-      await clickOrderSubmit(page);
-      await tapBottomNav(page, 'Tellimused');
-      await page.getByRole('button', { name: 'Tühista' }).first().click();
-      await expect(page.getByText('Tühistatud').first()).toBeVisible();
-      await screenshot(page, '16-buyer-cancelled-order.png');
-    }
+    await expect(page.getByText('Tühistatud').first()).toBeVisible({ timeout: 60_000 });
+    await screenshot(page, '16-buyer-cancelled-order.png');
   });
 });
