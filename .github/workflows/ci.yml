@@ -51,3 +51,45 @@ jobs:
 
       - name: Test
         run: flutter test
+
+  e2e-walkthrough:
+    name: E2E walkthrough (WebKit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            run:
+              - 'mobile/**'
+              - 'backend/**'
+              - 'e2e/**'
+              - '.github/workflows/ci.yml'
+
+      - name: Set up JDK 25
+        if: steps.changes.outputs.run == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - uses: subosito/flutter-action@v2
+        if: steps.changes.outputs.run == 'true'
+        with:
+          channel: stable
+          cache: true
+
+      - name: Run walkthrough
+        if: steps.changes.outputs.run == 'true'
+        run: chmod +x e2e/run-ci.sh && ./e2e/run-ci.sh
+
+      - name: Upload walkthrough screenshots
+        if: steps.changes.outputs.run == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walkthrough-screenshots
+          path: e2e/walkthrough-artifacts/
+          if-no-files-found: warn
