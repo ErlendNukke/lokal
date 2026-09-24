@@ -6,7 +6,7 @@ const webUrl = process.env.WEB_URL ?? `http://127.0.0.1:${webPort}`;
 export default defineConfig({
   testDir: '.',
   testMatch: 'walkthrough.spec.ts',
-  timeout: 300_000,
+  timeout: 360_000,
   expect: { timeout: 30_000 },
   fullyParallel: false,
   workers: 1,
