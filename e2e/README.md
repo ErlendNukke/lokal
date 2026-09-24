@@ -30,6 +30,11 @@ Screenshots are written to `WALKTHROUGH_DIR` (default `/opt/cursor/artifacts/wal
 - `API_BASE_URL` — passed to `flutter build web` (default `http://localhost:8080`).
 - `ENABLE_SEMANTICS=true` — **only** used for this e2e build so Playwright can drive CanvasKit; production/release builds omit it.
 
+### WebKit / Playwright notes
+
+- Text fields: use a single click plus `pressSequentially` (not triple-click or `fill()`), so Flutter `TextEditingController` values stay in sync on WebKit.
+- Producer **Salvesta toode**: the app POSTs correctly when the form is valid; earlier “no POST” failures were harness input/sync issues, not a Safari-only app bug.
+
 ## CI
 
 The `e2e-walkthrough` job in `.github/workflows/ci.yml` runs on PRs that touch `mobile/**`, `backend/**`, or `e2e/**`.
