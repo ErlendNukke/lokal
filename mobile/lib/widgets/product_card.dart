@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/product_network_image.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({super.key, required this.product, required this.onTap, this.delay = 0});
@@ -45,7 +45,7 @@ class ProductCard extends StatelessWidget {
                   aspectRatio: 16 / 11,
                   child: product.photo.isEmpty
                       ? Container(color: LokalColors.beigeDeep)
-                      : CachedNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
+                      : ProductNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
                 ),
               ),
               Padding(
