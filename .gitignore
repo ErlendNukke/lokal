@@ -19,6 +19,12 @@ backend/uploads/
 # Firebase
 .firebase/
 
+# E2E
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/walkthrough-artifacts/
+
 # Flutter
 mobile/.dart_tool/
 mobile/.flutter-plugins

@@ -10,7 +10,9 @@ import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  const OrdersScreen({super.key, this.isActive = false});
+
+  final bool isActive;
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
@@ -25,7 +27,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAndLoad());
+    if (widget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAndLoad());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant OrdersScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive) {
+      _ensureAndLoad();
+    }
   }
 
   Future<void> _ensureAndLoad() async {
@@ -126,13 +138,31 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 preferredSize: const Size.fromHeight(48),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: false, label: Text('Ostan')),
-                      ButtonSegment(value: true, label: Text('Müün')),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FilledButton.tonal(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: !_selling ? LokalColors.beigeDeep : null,
+                        ),
+                        onPressed: () {
+                          setState(() => _selling = false);
+                          _load();
+                        },
+                        child: const Text('Ostan'),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton.tonal(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: _selling ? LokalColors.beigeDeep : null,
+                        ),
+                        onPressed: () {
+                          setState(() => _selling = true);
+                          _load();
+                        },
+                        child: const Text('Müün'),
+                      ),
                     ],
-                    selected: {_selling},
-                    onSelectionChanged: (s) => setState(() => _selling = s.first),
                   ),
                 ),
               )
@@ -180,39 +210,45 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                       ),
                                     const SizedBox(width: 12),
                                     Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(o.productName, style: brandTitle(size: 18)),
-                                          Text(
-                                            '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)}'
-                                            '${_selling ? ' · ${o.totalPrice.toStringAsFixed(2)} €' : ''}',
-                                            style: const TextStyle(color: LokalColors.muted),
-                                          ),
-                                          if (!_selling)
+                                      child: Semantics(
+                                        label: !_selling
+                                            ? '${o.productName}. ${OrderPaymentCopy.buyerOrderPaymentLine}. '
+                                                '${orderStatusLabel(o.status)}'
+                                            : '${o.productName}. ${orderStatusLabel(o.status)}',
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(o.productName, style: brandTitle(size: 18)),
                                             Text(
-                                              '${OrderPaymentCopy.buyerOrderPaymentLine} · ${o.totalPrice.toStringAsFixed(2)} €',
-                                              style: PaymentAtHandoverHint.style,
+                                              '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)}'
+                                              '${_selling ? ' · ${o.totalPrice.toStringAsFixed(2)} €' : ''}',
+                                              style: const TextStyle(color: LokalColors.muted),
                                             ),
-                                          if (_selling)
-                                            const PaymentAtHandoverHint(
-                                              text: OrderPaymentCopy.producerOrderPaymentHint,
+                                            if (!_selling)
+                                              Text(
+                                                '${OrderPaymentCopy.buyerOrderPaymentLine} · ${o.totalPrice.toStringAsFixed(2)} €',
+                                                style: PaymentAtHandoverHint.style,
+                                              ),
+                                            if (_selling)
+                                              const PaymentAtHandoverHint(
+                                                text: OrderPaymentCopy.producerOrderPaymentHint,
+                                              ),
+                                            Text(
+                                              o.fulfillment == FulfillmentType.pickup
+                                                  ? 'Järeletulemine'
+                                                  : 'Kohaletoimetamine',
+                                              style: const TextStyle(color: LokalColors.muted),
                                             ),
-                                          Text(
-                                            o.fulfillment == FulfillmentType.pickup
-                                                ? 'Järeletulemine'
-                                                : 'Kohaletoimetamine',
-                                            style: const TextStyle(color: LokalColors.muted),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Chip(
-                                            label: Text(orderStatusApi(o.status)),
-                                            visualDensity: VisualDensity.compact,
-                                            backgroundColor: LokalColors.beige,
-                                          ),
-                                          if (o.message != null)
-                                            Text('„${o.message}”', style: const TextStyle(fontStyle: FontStyle.italic)),
-                                        ],
+                                            const SizedBox(height: 6),
+                                            Chip(
+                                              label: Text(orderStatusLabel(o.status)),
+                                              visualDensity: VisualDensity.compact,
+                                              backgroundColor: LokalColors.beige,
+                                            ),
+                                            if (o.message != null)
+                                              Text('„${o.message}”', style: const TextStyle(fontStyle: FontStyle.italic)),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],

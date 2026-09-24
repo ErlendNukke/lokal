@@ -19,11 +19,13 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthService>();
+    final profileTabIndex = auth.isProducer ? 3 : 2;
+
     final pages = <Widget>[
       const BrowseScreen(),
-      const OrdersScreen(),
-      if (auth.isProducer) const ProducerScreen(),
-      const ProfileScreen(),
+      OrdersScreen(isActive: _index == 1),
+      if (auth.isProducer) ProducerScreen(isActive: _index == 2),
+      ProfileScreen(isActive: _index == profileTabIndex),
     ];
 
     final items = <BottomNavigationBarItem>[

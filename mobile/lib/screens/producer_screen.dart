@@ -11,7 +11,9 @@ import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
 class ProducerScreen extends StatefulWidget {
-  const ProducerScreen({super.key});
+  const ProducerScreen({super.key, this.isActive = false});
+
+  final bool isActive;
 
   @override
   State<ProducerScreen> createState() => _ProducerScreenState();
@@ -37,7 +39,22 @@ class _ProducerScreenState extends State<ProducerScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+    for (final c in [_name, _description, _price, _quantity, _location]) {
+      c.addListener(() {
+        if (mounted) setState(() {});
+      });
+    }
+    if (widget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ProducerScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _load();
+    }
   }
 
   @override
@@ -145,13 +162,20 @@ class _ProducerScreenState extends State<ProducerScreen> {
       appBar: AppBar(
         title: const Text('Müüja töölaud'),
         actions: [
+          if (_showForm && _name.text.trim().isNotEmpty)
+            TextButton(
+              onPressed: _saving ? null : _save,
+              child: Text(_saving ? 'Salvestan…' : 'Salvesta toode'),
+            ),
           TextButton(
             onPressed: () => setState(() => _showForm = !_showForm),
             child: Text(_showForm ? 'Sulge' : 'Lisa toode'),
           ),
         ],
       ),
-      body: ListView(
+      body: Semantics(
+        label: 'Müüja vorm',
+        child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           BrandHeader(subtitle: auth.user?.farmName ?? 'Lisa tooteid ja võta tellimusi vastu'),
@@ -162,12 +186,17 @@ class _ProducerScreenState extends State<ProducerScreen> {
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [
-                    TextField(controller: _name, decoration: const InputDecoration(labelText: 'Nimi')),
+                    TextField(
+                      controller: _name,
+                      decoration: const InputDecoration(labelText: 'Nimi'),
+                      onChanged: (_) => setState(() {}),
+                    ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _description,
                       maxLines: 3,
                       decoration: const InputDecoration(labelText: 'Kirjeldus'),
+                      onChanged: (_) => setState(() {}),
                     ),
                     const SizedBox(height: 10),
                     DropdownButtonFormField<ProductCategory>(
@@ -175,7 +204,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                       value: _category,
                       decoration: const InputDecoration(labelText: 'Kategooria'),
                       items: ProductCategory.values
-                          .map((c) => DropdownMenuItem(value: c, child: Text(categoryApi(c))))
+                          .map((c) => DropdownMenuItem(value: c, child: Text(categoryLabel(c))))
                           .toList(),
                       onChanged: (v) => setState(() => _category = v ?? ProductCategory.food),
                     ),
@@ -191,7 +220,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                       value: _unit,
                       decoration: const InputDecoration(labelText: 'Ühik'),
                       items: ProductUnit.values
-                          .map((u) => DropdownMenuItem(value: u, child: Text(unitApi(u))))
+                          .map((u) => DropdownMenuItem(value: u, child: Text(unitLabel(u))))
                           .toList(),
                       onChanged: (v) => setState(() => _unit = v ?? ProductUnit.piece),
                     ),
@@ -263,6 +292,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
               ),
             ),
         ],
+      ),
       ),
     );
   }
