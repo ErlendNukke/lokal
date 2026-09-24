@@ -118,10 +118,20 @@ async function openAuthFromProfile(page: Page) {
 }
 
 async function registerAccount(page: Page, opts: { name: string; email: string; role?: 'Ostja' | 'Tootja' | 'Mõlemad' }) {
-  await openAuthFromProfile(page);
-  const regTab = page.getByRole('button', { name: 'Registreeru' });
-  await expect(regTab).toBeVisible({ timeout: 120_000 });
-  await regTab.click();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await openAuthFromProfile(page);
+    const onRegisterForm = await page.getByRole('button', { name: 'Loo konto' }).isVisible().catch(() => false);
+    if (onRegisterForm) break;
+    const regTab = page.getByRole('button', { name: 'Registreeru' });
+    if (await regTab.isVisible().catch(() => false)) {
+      await regTab.click();
+      break;
+    }
+    await page.waitForTimeout(2000);
+    await page.reload({ waitUntil: 'load' });
+    await waitForApp(page);
+  }
+  await expect(page.getByRole('button', { name: 'Loo konto' })).toBeVisible({ timeout: 120_000 });
   if (opts.role) {
     await page.getByRole('button', { name: new RegExp(`^Roll\\s`) }).click();
     await page.getByRole('menuitem', { name: opts.role }).click({ timeout: 10_000 });
