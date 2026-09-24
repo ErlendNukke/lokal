@@ -6,7 +6,9 @@ import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, this.isActive = false});
+
+  final bool isActive;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -25,7 +27,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+    if (widget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _sync();
+    }
   }
 
   @override
@@ -101,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                BrandHeader(subtitle: '${user.email} · ${roleApi(user.role)}'),
+                BrandHeader(subtitle: '${user.email} · ${roleLabel(user.role)}'),
                 const SizedBox(height: 12),
                 TextField(controller: _name, decoration: const InputDecoration(labelText: 'Nimi')),
                 const SizedBox(height: 12),
