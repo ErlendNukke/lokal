@@ -34,6 +34,7 @@ Screenshots are written to `WALKTHROUGH_DIR` (default `/opt/cursor/artifacts/wal
 
 - Text fields: use a single click plus `pressSequentially` (not triple-click or `fill()`), so Flutter `TextEditingController` values stay in sync on WebKit.
 - Producer **Salvesta toode**: the app POSTs correctly when the form is valid; earlier “no POST” failures were harness input/sync issues, not a Safari-only app bug.
+- **Buyer-only orders**: `UserRole.PRODUCER` is blocked from ordering; `BUYER` and `BOTH` can order. The walkthrough uses **Anna** (`anna@lokal.app`, buyer-only) as the primary UI order flow on Mari’s products.
 
 ## CI
 
