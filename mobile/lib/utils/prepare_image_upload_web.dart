@@ -1,10 +1,9 @@
-// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
-
 import 'dart:async';
-import 'dart:html' as html;
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:web/web.dart';
 
 const _maxEdge = 1600;
 const _jpegQuality = 0.85;
@@ -34,19 +33,19 @@ Future<({Uint8List bytes, String filename, String mimeType})> prepareImageForUpl
 }
 
 Future<Uint8List> _reencodeToJpeg(Uint8List bytes, String mime) async {
-  final blob = html.Blob([bytes], mime);
-  final objectUrl = html.Url.createObjectUrlFromBlob(blob);
+  final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: mime));
+  final objectUrl = URL.createObjectURL(blob);
   try {
-    final img = html.ImageElement();
+    final img = HTMLImageElement();
     final loaded = Completer<void>();
-    img.onLoad.listen((_) {
+    img.onload = ((Event _) {
       if (!loaded.isCompleted) loaded.complete();
-    });
-    img.onError.listen((_) {
+    }).toJS;
+    img.onerror = ((Event _) {
       if (!loaded.isCompleted) {
         loaded.completeError(StateError('decode failed'));
       }
-    });
+    }).toJS;
     img.src = objectUrl;
     await loaded.future.timeout(const Duration(seconds: 20));
 
@@ -62,29 +61,51 @@ Future<Uint8List> _reencodeToJpeg(Uint8List bytes, String mime) async {
     final w = (srcW * scale).round().clamp(1, _maxEdge);
     final h = (srcH * scale).round().clamp(1, _maxEdge);
 
-    final canvas = html.CanvasElement(width: w, height: h);
-    final ctx = canvas.context2D;
-    ctx.drawImageScaled(img, 0, 0, w, h);
+    final canvas = HTMLCanvasElement();
+    canvas.width = w;
+    canvas.height = h;
+    final ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+    ctx.drawImage(img, 0, 0, w.toDouble(), h.toDouble());
 
-    final outBlob = await canvas.toBlob('image/jpeg', _jpegQuality);
-    final reader = html.FileReader();
-    final done = Completer<Uint8List>();
-    reader.onLoadEnd.listen((_) {
-      final result = reader.result;
-      if (result is Uint8List) {
-        done.complete(result);
-      } else if (result is ByteBuffer) {
-        done.complete(result.asUint8List());
-      } else {
-        done.completeError(StateError('read failed'));
-      }
-    });
-    reader.onError.listen((_) => done.completeError(StateError('read failed')));
-    reader.readAsArrayBuffer(outBlob);
-    return await done.future.timeout(const Duration(seconds: 20));
+    final outBlob = await _canvasToJpegBlob(canvas);
+    return await _readBlobAsBytes(outBlob);
   } finally {
-    html.Url.revokeObjectUrl(objectUrl);
+    URL.revokeObjectURL(objectUrl);
   }
+}
+
+Future<Blob> _canvasToJpegBlob(HTMLCanvasElement canvas) {
+  final done = Completer<Blob>();
+  canvas.toBlob(
+    ((Blob? blob) {
+      if (blob != null) {
+        done.complete(blob);
+      } else {
+        done.completeError(StateError('jpeg export failed'));
+      }
+    }).toJS,
+    'image/jpeg',
+    _jpegQuality.toJS,
+  );
+  return done.future.timeout(const Duration(seconds: 20));
+}
+
+Future<Uint8List> _readBlobAsBytes(Blob blob) {
+  final reader = FileReader();
+  final done = Completer<Uint8List>();
+  reader.onloadend = ((Event _) {
+    final result = reader.result;
+    if (result.isA<JSArrayBuffer>()) {
+      done.complete(Uint8List.view((result as JSArrayBuffer).toDart));
+    } else {
+      done.completeError(StateError('read failed'));
+    }
+  }).toJS;
+  reader.onerror = ((Event _) {
+    done.completeError(StateError('read failed'));
+  }).toJS;
+  reader.readAsArrayBuffer(blob);
+  return done.future.timeout(const Duration(seconds: 20));
 }
 
 String? _mimeFromName(String name) {
