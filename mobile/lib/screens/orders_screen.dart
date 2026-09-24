@@ -8,6 +8,7 @@ import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/widgets/payment_at_handover_hint.dart';
 import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key, this.isActive = false});
@@ -19,6 +20,8 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
+  static const _sellingPrefKey = 'orders_selling';
+
   bool _selling = false;
   List<Order> _buying = [];
   List<Order> _sellingOrders = [];
@@ -48,7 +51,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
       );
       if (ok != true) return;
     }
+    await _restoreSellingPref();
     await _load();
+  }
+
+  Future<void> _restoreSellingPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getBool(_sellingPrefKey);
+    if (saved != null && mounted) {
+      setState(() => _selling = saved);
+    }
+  }
+
+  Future<void> _persistSellingPref(bool selling) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sellingPrefKey, selling);
   }
 
   Future<void> _load() async {
@@ -153,7 +170,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ],
                       selected: {_selling},
                       onSelectionChanged: (s) {
-                        setState(() => _selling = s.first);
+                        final next = s.first;
+                        setState(() => _selling = next);
+                        _persistSellingPref(next);
                         _load();
                       },
                     ),
