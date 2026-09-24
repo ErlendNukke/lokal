@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
+
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:typed_data';
@@ -65,9 +67,6 @@ Future<Uint8List> _reencodeToJpeg(Uint8List bytes, String mime) async {
     ctx.drawImageScaled(img, 0, 0, w, h);
 
     final outBlob = await canvas.toBlob('image/jpeg', _jpegQuality);
-    if (outBlob == null) {
-      throw StateError('jpeg export failed');
-    }
     final reader = html.FileReader();
     final done = Completer<Uint8List>();
     reader.onLoadEnd.listen((_) {
@@ -82,7 +81,7 @@ Future<Uint8List> _reencodeToJpeg(Uint8List bytes, String mime) async {
     });
     reader.onError.listen((_) => done.completeError(StateError('read failed')));
     reader.readAsArrayBuffer(outBlob);
-    return done.future.timeout(const Duration(seconds: 20));
+    return await done.future.timeout(const Duration(seconds: 20));
   } finally {
     html.Url.revokeObjectUrl(objectUrl);
   }

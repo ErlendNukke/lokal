@@ -45,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       if (ok != true) return;
     }
+    if (!mounted) return;
     final user = context.read<AuthService>().user!;
     setState(() {
       _name.text = user.name;

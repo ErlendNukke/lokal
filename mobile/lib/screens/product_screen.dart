@@ -76,6 +76,7 @@ class _ProductScreenState extends State<ProductScreen> {
       if (ok != true) return;
     }
 
+    if (!mounted) return;
     setState(() => _ordering = true);
     try {
       await context.read<MarketplaceService>().createOrder({
