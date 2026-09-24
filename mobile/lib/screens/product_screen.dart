@@ -126,7 +126,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           Text(product.name, style: brandTitle(size: 28)),
                           const SizedBox(height: 6),
                           Text(
-                            '${product.price.toStringAsFixed(2)} € / ${unitApi(product.unit)}',
+                            '${product.price.toStringAsFixed(2)} € / ${unitLabel(product.unit)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 18,
@@ -143,7 +143,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           Text(product.description ?? ''),
                           const SizedBox(height: 8),
                           Text(
-                            'Saadaval: ${product.quantity} ${unitApi(product.unit)} · ${product.locationLabel ?? 'Eesti'}',
+                            'Saadaval: ${product.quantity} ${unitLabel(product.unit)} · ${product.locationLabel ?? 'Eesti'}',
                             style: const TextStyle(color: LokalColors.muted),
                           ),
                           const SizedBox(height: 24),

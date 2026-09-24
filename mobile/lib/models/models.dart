@@ -39,6 +39,35 @@ String unitApi(ProductUnit u) => u.name;
 String fulfillmentApi(FulfillmentType f) => f.name.toUpperCase();
 String orderStatusApi(OrderStatus s) => s.name.toUpperCase();
 
+String roleLabel(UserRole role) => switch (role) {
+      UserRole.buyer => 'Ostja',
+      UserRole.producer => 'Tootja',
+      UserRole.both => 'Ostja ja tootja',
+    };
+
+String orderStatusLabel(OrderStatus status) => switch (status) {
+      OrderStatus.pending => 'Ootel',
+      OrderStatus.accepted => 'Kinnitatud',
+      OrderStatus.rejected => 'Tagasi lükatud',
+      OrderStatus.completed => 'Lõpetatud',
+      OrderStatus.cancelled => 'Tühistatud',
+    };
+
+String categoryLabel(ProductCategory c) => switch (c) {
+      ProductCategory.food => 'Toit',
+      ProductCategory.plants => 'Taimed',
+      ProductCategory.farm => 'Talutooted',
+      ProductCategory.handmade => 'Käsitöö',
+      ProductCategory.other => 'Muu',
+    };
+
+String unitLabel(ProductUnit u) => switch (u) {
+      ProductUnit.kg => 'kg',
+      ProductUnit.piece => 'tk',
+      ProductUnit.jar => 'purk',
+      ProductUnit.box => 'karp',
+    };
+
 class User {
   User({
     required this.id,

@@ -8,15 +8,20 @@ import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/widgets/payment_at_handover_hint.dart';
 import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  const OrdersScreen({super.key, this.isActive = false});
+
+  final bool isActive;
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
+  static const _sellingPrefKey = 'orders_selling';
+
   bool _selling = false;
   List<Order> _buying = [];
   List<Order> _sellingOrders = [];
@@ -25,7 +30,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAndLoad());
+    if (widget.isActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _ensureAndLoad());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant OrdersScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _ensureAndLoad();
+    }
   }
 
   Future<void> _ensureAndLoad() async {
@@ -36,7 +51,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
       );
       if (ok != true) return;
     }
+    await _restoreSellingPref();
     await _load();
+  }
+
+  Future<void> _restoreSellingPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getBool(_sellingPrefKey);
+    if (saved != null && mounted) {
+      setState(() => _selling = saved);
+    }
+  }
+
+  Future<void> _persistSellingPref(bool selling) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sellingPrefKey, selling);
   }
 
   Future<void> _load() async {
@@ -126,13 +155,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 preferredSize: const Size.fromHeight(48),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: SegmentedButton<bool>(
-                    segments: const [
-                      ButtonSegment(value: false, label: Text('Ostan')),
-                      ButtonSegment(value: true, label: Text('Müün')),
-                    ],
-                    selected: {_selling},
-                    onSelectionChanged: (s) => setState(() => _selling = s.first),
+                  child: Semantics(
+                    explicitChildNodes: true,
+                    child: SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(
+                          value: false,
+                          label: Text('Ostan'),
+                        ),
+                        ButtonSegment(
+                          value: true,
+                          label: Text('Müün'),
+                        ),
+                      ],
+                      selected: {_selling},
+                      onSelectionChanged: (s) {
+                        final next = s.first;
+                        setState(() => _selling = next);
+                        _persistSellingPref(next);
+                        _load();
+                      },
+                    ),
                   ),
                 ),
               )
@@ -180,39 +223,45 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                       ),
                                     const SizedBox(width: 12),
                                     Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(o.productName, style: brandTitle(size: 18)),
-                                          Text(
-                                            '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitApi(o.unit)}'
-                                            '${_selling ? ' · ${o.totalPrice.toStringAsFixed(2)} €' : ''}',
-                                            style: const TextStyle(color: LokalColors.muted),
-                                          ),
-                                          if (!_selling)
+                                      child: Semantics(
+                                        label: !_selling
+                                            ? '${o.productName}. ${OrderPaymentCopy.buyerOrderPaymentLine}. '
+                                                '${orderStatusLabel(o.status)}'
+                                            : '${o.productName}. ${orderStatusLabel(o.status)}',
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(o.productName, style: brandTitle(size: 18)),
                                             Text(
-                                              '${OrderPaymentCopy.buyerOrderPaymentLine} · ${o.totalPrice.toStringAsFixed(2)} €',
-                                              style: PaymentAtHandoverHint.style,
+                                              '${_selling ? o.buyerName : o.farmName} · ${o.quantity} ${unitLabel(o.unit)}'
+                                              '${_selling ? ' · ${o.totalPrice.toStringAsFixed(2)} €' : ''}',
+                                              style: const TextStyle(color: LokalColors.muted),
                                             ),
-                                          if (_selling)
-                                            const PaymentAtHandoverHint(
-                                              text: OrderPaymentCopy.producerOrderPaymentHint,
+                                            if (!_selling)
+                                              Text(
+                                                '${OrderPaymentCopy.buyerOrderPaymentLine} · ${o.totalPrice.toStringAsFixed(2)} €',
+                                                style: PaymentAtHandoverHint.style,
+                                              ),
+                                            if (_selling)
+                                              const PaymentAtHandoverHint(
+                                                text: OrderPaymentCopy.producerOrderPaymentHint,
+                                              ),
+                                            Text(
+                                              o.fulfillment == FulfillmentType.pickup
+                                                  ? 'Järeletulemine'
+                                                  : 'Kohaletoimetamine',
+                                              style: const TextStyle(color: LokalColors.muted),
                                             ),
-                                          Text(
-                                            o.fulfillment == FulfillmentType.pickup
-                                                ? 'Järeletulemine'
-                                                : 'Kohaletoimetamine',
-                                            style: const TextStyle(color: LokalColors.muted),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Chip(
-                                            label: Text(orderStatusApi(o.status)),
-                                            visualDensity: VisualDensity.compact,
-                                            backgroundColor: LokalColors.beige,
-                                          ),
-                                          if (o.message != null)
-                                            Text('„${o.message}”', style: const TextStyle(fontStyle: FontStyle.italic)),
-                                        ],
+                                            const SizedBox(height: 6),
+                                            Chip(
+                                              label: Text(orderStatusLabel(o.status)),
+                                              visualDensity: VisualDensity.compact,
+                                              backgroundColor: LokalColors.beige,
+                                            ),
+                                            if (o.message != null)
+                                              Text('„${o.message}”', style: const TextStyle(fontStyle: FontStyle.italic)),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],

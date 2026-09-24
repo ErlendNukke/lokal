@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:lokal/core/config.dart';
 import 'package:lokal/screens/home_shell.dart';
 import 'package:lokal/services/api_client.dart';
@@ -22,8 +23,13 @@ String resolveApiBaseUrl() {
   }
 }
 
+const _enableSemantics = bool.fromEnvironment('ENABLE_SEMANTICS', defaultValue: false);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb && _enableSemantics) {
+    SemanticsBinding.instance.ensureSemantics();
+  }
   final api = ApiClient(baseUrl: resolveApiBaseUrl());
   final auth = AuthService(api);
   await auth.bootstrap();
