@@ -20,7 +20,11 @@ class ProductCard extends StatelessWidget {
         opacity: value,
         child: Transform.translate(offset: Offset(0, 10 * (1 - value)), child: child),
       ),
-      child: InkWell(
+      child: Semantics(
+        button: true,
+        label: product.name,
+        child: ExcludeSemantics(
+        child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Ink(
@@ -73,6 +77,8 @@ class ProductCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      ),
       ),
     );
   }
