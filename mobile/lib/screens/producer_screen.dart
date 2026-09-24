@@ -76,6 +76,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
     if (file == null) return;
     try {
       final prepared = await prepareImageForUpload(file);
+      if (!mounted) return;
       final url = await context.read<MarketplaceService>().uploadImage(
             prepared.bytes,
             filename: prepared.filename,
@@ -132,6 +133,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
       ),
     );
     if (ok != true) return;
+    if (!mounted) return;
     await context.read<MarketplaceService>().deleteProduct(product.id);
     await _load();
   }

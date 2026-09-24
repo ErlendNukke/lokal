@@ -142,7 +142,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     setState(() => _loading = true);
                     try {
                       await context.read<AuthService>().googleDemo();
-                      if (!mounted) return;
+                      if (!context.mounted) return;
                       Navigator.of(context).pop(true);
                     } catch (e) {
                       setState(() => _error = e.toString());

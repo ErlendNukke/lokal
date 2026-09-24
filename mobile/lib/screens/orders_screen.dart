@@ -99,6 +99,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
     );
     if (ok != true) return;
+    if (!mounted) return;
     try {
       await context.read<MarketplaceService>().createReview(
             orderId: order.id,
