@@ -300,7 +300,8 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     await screenshot(page, '08-product-detail.png');
 
     // (d) Mari orders from another producer (Liisa, Tallinn)
-    await logout(page);
+    await page.goto('/', { waitUntil: 'load' });
+    await waitForApp(page);
     await loginAccount(page, request, 'mari@lokal.app');
     await openProductFromBrowse(page, PRODUCT_FROM_LIISA);
     await screenshot(page, '09-browse-as-mari.png');
