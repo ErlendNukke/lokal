@@ -48,7 +48,8 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
   @override
   void initState() {
     super.initState();
-    _shimmer = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat();
+    _shimmer = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
+    _startShimmer();
     _armLoadTimeout();
   }
 
@@ -59,11 +60,24 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
     super.dispose();
   }
 
+  void _startShimmer() {
+    if (!_shimmer.isAnimating) {
+      _shimmer.repeat();
+    }
+  }
+
+  void _stopShimmer() {
+    if (_shimmer.isAnimating) {
+      _shimmer.stop();
+    }
+  }
+
   void _armLoadTimeout() {
     _timeoutTimer?.cancel();
     _loadTimedOut = false;
     _timeoutTimer = Timer(_loadTimeout, () {
       if (!mounted || _hasFrame) return;
+      _stopShimmer();
       setState(() => _loadTimedOut = true);
       if (kDebugMode) {
         debugPrint('ProductNetworkImage timed out for ${widget.imageUrl}');
@@ -72,8 +86,9 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
   }
 
   void _onFrameReady() {
-    if (_hasFrame) return;
+    if (!mounted || _hasFrame) return;
     _timeoutTimer?.cancel();
+    _stopShimmer();
     setState(() {
       _hasFrame = true;
       _loadTimedOut = false;
@@ -84,6 +99,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
   void _onLoadError(Object error) {
     if (!mounted) return;
     _timeoutTimer?.cancel();
+    _stopShimmer();
     setState(() {
       _loadFailed = true;
       _hasFrame = false;
@@ -109,6 +125,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
       _loadFailed = false;
       _loadTimedOut = false;
     });
+    _startShimmer();
     _armLoadTimeout();
   }
 
@@ -212,12 +229,18 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
         gaplessPlayback: true,
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (frame != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _onFrameReady());
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              _onFrameReady();
+            });
           }
           return child;
         },
         errorBuilder: (context, error, stackTrace) {
-          WidgetsBinding.instance.addPostFrameCallback((_) => _onLoadError(error));
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _onLoadError(error);
+          });
           return const SizedBox.shrink();
         },
       ),
@@ -238,12 +261,18 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
         gaplessPlayback: true,
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (frame != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _onFrameReady());
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              _onFrameReady();
+            });
           }
           return child;
         },
         errorBuilder: (context, error, stackTrace) {
-          WidgetsBinding.instance.addPostFrameCallback((_) => _onLoadError(error));
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _onLoadError(error);
+          });
           return const SizedBox.shrink();
         },
       ),
@@ -257,10 +286,23 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> with SingleTi
       height: widget.height,
       fit: widget.fit,
       fadeInDuration: const Duration(milliseconds: 280),
+      imageBuilder: (context, imageProvider) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _stopShimmer();
+        });
+        return Image(
+          image: imageProvider,
+          width: widget.width,
+          height: widget.height,
+          fit: widget.fit,
+        );
+      },
       progressIndicatorBuilder: (context, url, downloadProgress) {
         return _loadingShell(progress: downloadProgress.progress);
       },
       errorWidget: (context, url, error) {
+        _stopShimmer();
         if (kDebugMode) {
           debugPrint('ProductNetworkImage failed for $url: $error');
         }
