@@ -4,7 +4,9 @@ import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
+import 'package:lokal/copy/order_payment_copy.dart';
 import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/payment_at_handover_hint.dart';
 import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
 
@@ -87,7 +89,7 @@ class _ProductScreenState extends State<ProductScreen> {
       });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tellimus saadetud tootjale')),
+        const SnackBar(content: Text(OrderPaymentCopy.orderConfirmation)),
       );
       Navigator.of(context).pop();
     } catch (e) {
@@ -181,7 +183,9 @@ class _ProductScreenState extends State<ProductScreen> {
                               hintText: 'Millal sobib?',
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
+                          const PaymentAtHandoverHint(text: OrderPaymentCopy.orderSectionHint),
+                          const SizedBox(height: 12),
                           FilledButton(
                             onPressed: _ordering ? null : _order,
                             child: Text(_ordering ? 'Saadan…' : 'Telli'),

@@ -47,6 +47,7 @@ Mobile-first screens. Warm Scandinavian feel: forest green, beige, white, dark g
 │ Kogus [ 1 ]                 │
 │ Kättesaamine [Järeletulemine]│
 │ Sõnum […………]                │
+│ Maksad tootjale kohapeal…   │
 │ [        Telli        ]     │
 │                             │
 │ Arvustused                  │

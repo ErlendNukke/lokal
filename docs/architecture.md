@@ -71,6 +71,6 @@ Buyer                    API                     Producer
 2. Push/email notifications on order events
 3. Postgres + PostGIS for geo queries
 4. Chat between buyer and producer
-5. Payments (optional; keep cash/pickup first)
+5. Payments — **not in MVP**: buyers pay producers in person at pickup/delivery (no in-app checkout)
 
 Photo storage: see `docs/storage-s3.md` (`STORAGE_TYPE=s3`).

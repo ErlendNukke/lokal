@@ -56,7 +56,7 @@ Password: `password123`
 
 - Browse nearby products on an Estonia-focused OSM map
 - Category filters within a fixed 10 km radius
-- Product detail + order (pickup/delivery + message)
+- Product detail + order (pickup/delivery + message; **buyer pays the producer in person at handover — no in-app payments**)
 - Producer dashboard (list products, upload photos)
 - Order accept / reject / complete + reviews
 - Email login, register with role, Google demo login
