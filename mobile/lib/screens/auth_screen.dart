@@ -79,19 +79,29 @@ class _AuthScreenState extends State<AuthScreen> {
           Wrap(
             spacing: 8,
             children: [
-              ChoiceChip(
-                label: const Text('Sisselogimine'),
+              Semantics(
+                button: true,
+                label: 'Sisselogimine',
                 selected: !_register,
-                onSelected: (_) => setState(() => _register = false),
-                selectedColor: LokalColors.forest,
-                labelStyle: TextStyle(color: !_register ? Colors.white : LokalColors.ink),
+                child: ChoiceChip(
+                  label: const Text('Sisselogimine'),
+                  selected: !_register,
+                  onSelected: (_) => setState(() => _register = false),
+                  selectedColor: LokalColors.forest,
+                  labelStyle: TextStyle(color: !_register ? Colors.white : LokalColors.ink),
+                ),
               ),
-              ChoiceChip(
-                label: const Text('Registreeru'),
+              Semantics(
+                button: true,
+                label: 'Registreeru',
                 selected: _register,
-                onSelected: (_) => setState(() => _register = true),
-                selectedColor: LokalColors.forest,
-                labelStyle: TextStyle(color: _register ? Colors.white : LokalColors.ink),
+                child: ChoiceChip(
+                  label: const Text('Registreeru'),
+                  selected: _register,
+                  onSelected: (_) => setState(() => _register = true),
+                  selectedColor: LokalColors.forest,
+                  labelStyle: TextStyle(color: _register ? Colors.white : LokalColors.ink),
+                ),
               ),
             ],
           ),
@@ -159,9 +169,30 @@ class _AuthScreenState extends State<AuthScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              ActionChip(label: const Text('Ostja · Anna'), onPressed: () => _fillDemo('anna@lokal.app')),
-              ActionChip(label: const Text('Tootja · Mari'), onPressed: () => _fillDemo('mari@lokal.app')),
-              ActionChip(label: const Text('Tootja · Jüri'), onPressed: () => _fillDemo('juri@lokal.app')),
+              Semantics(
+                button: true,
+                label: 'Ostja · Anna',
+                child: ActionChip(
+                  label: const Text('Ostja · Anna'),
+                  onPressed: () => _fillDemo('anna@lokal.app'),
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: 'Tootja · Mari',
+                child: ActionChip(
+                  label: const Text('Tootja · Mari'),
+                  onPressed: () => _fillDemo('mari@lokal.app'),
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: 'Tootja · Jüri',
+                child: ActionChip(
+                  label: const Text('Tootja · Jüri'),
+                  onPressed: () => _fillDemo('juri@lokal.app'),
+                ),
+              ),
             ],
           ),
         ],
