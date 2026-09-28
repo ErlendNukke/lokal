@@ -33,7 +33,15 @@ echo "==> Serving web"
 npx --yes serve -s build/web -l "${WEB_PORT}" &
 SERVE_PID=$!
 trap 'kill "${SERVE_PID}" "${BACKEND_PID}" 2>/dev/null || true' EXIT
-sleep 2
+
+echo "==> Waiting for web server"
+for _ in $(seq 1 30); do
+  if curl -sf "${WEB_URL}/" >/dev/null; then
+    break
+  fi
+  sleep 1
+done
+curl -sf "${WEB_URL}/" >/dev/null
 
 echo "==> Playwright walkthrough"
 cd "${ROOT}/e2e"

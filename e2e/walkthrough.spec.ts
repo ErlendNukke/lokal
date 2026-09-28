@@ -107,31 +107,48 @@ async function leaveProductDetail(page: Page) {
   await page.waitForTimeout(500);
 }
 
+function authScreenHeading(page: Page) {
+  return page.getByRole('heading', { name: /^(Logi sisse|Loo konto)$/ });
+}
+
 async function openAuthFromProfile(page: Page) {
   await tapBottomNav(page, 'Profiil');
-  const onRegisterForm = await page.getByRole('button', { name: 'Loo konto' }).isVisible().catch(() => false);
-  if (onRegisterForm) return;
-  const profileLogin = page.getByRole('button', { name: 'Logi sisse' }).first();
-  if (await profileLogin.isVisible().catch(() => false)) {
-    await profileLogin.click();
-  }
+  // Guest profile tab auto-pushes AuthScreen via ProfileScreen._sync(); do not click "Logi sisse"
+  // on the auth form (that submits login) when we only need the register tab.
+  const authHeading = authScreenHeading(page);
+  const profileGuestLogin = page.locator('body').getByRole('button', { name: 'Logi sisse' });
+  await expect(authHeading.or(profileGuestLogin)).toBeVisible({ timeout: 90_000 });
+  if (await authHeading.isVisible().catch(() => false)) return;
+  await profileGuestLogin.click();
+  await expect(authHeading).toBeVisible({ timeout: 90_000 });
+}
+
+async function switchToRegisterTab(page: Page) {
+  const registerSubmit = page.getByRole('button', { name: 'Loo konto' });
+  if (await registerSubmit.isVisible().catch(() => false)) return;
+  const regTab = page
+    .getByRole('button', { name: 'Registreeru' })
+    .or(page.getByText('Registreeru', { exact: true }));
+  await expect(regTab.first()).toBeVisible({ timeout: 60_000 });
+  await regTab.first().click();
+  await expect(page.getByRole('heading', { name: 'Loo konto' })).toBeVisible({ timeout: 60_000 });
+  await expect(registerSubmit).toBeVisible({ timeout: 60_000 });
 }
 
 async function registerAccount(page: Page, opts: { name: string; email: string; role?: 'Ostja' | 'Tootja' | 'Mõlemad' }) {
   for (let attempt = 0; attempt < 3; attempt++) {
     await openAuthFromProfile(page);
-    const onRegisterForm = await page.getByRole('button', { name: 'Loo konto' }).isVisible().catch(() => false);
-    if (onRegisterForm) break;
-    const regTab = page.getByRole('button', { name: 'Registreeru' });
-    if (await regTab.isVisible().catch(() => false)) {
-      await regTab.click();
+    try {
+      await switchToRegisterTab(page);
       break;
+    } catch {
+      await page.waitForTimeout(1500);
+      await page.reload({ waitUntil: 'load' });
+      await waitForApp(page);
+      await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 180_000 });
     }
-    await page.waitForTimeout(2000);
-    await page.reload({ waitUntil: 'load' });
-    await waitForApp(page);
   }
-  await expect(page.getByRole('button', { name: 'Loo konto' })).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByRole('button', { name: 'Loo konto' })).toBeVisible({ timeout: 60_000 });
   if (opts.role) {
     await page.getByRole('button', { name: new RegExp(`^Roll\\s`) }).click();
     await page.getByRole('menuitem', { name: opts.role }).click({ timeout: 10_000 });
