@@ -126,15 +126,14 @@ async function openAuthFromProfile(page: Page) {
 }
 
 async function switchToRegisterTab(page: Page) {
-  const registerSubmit = page.getByRole('button', { name: 'Loo konto' });
-  if (await registerSubmit.isVisible().catch(() => false)) return;
-  const regTab = page
-    .getByRole('button', { name: 'Registreeru' })
-    .or(page.getByText('Registreeru', { exact: true }));
-  await expect(regTab.first()).toBeVisible({ timeout: 60_000 });
-  await regTab.first().click();
-  await expect(page.getByRole('heading', { name: 'Loo konto' })).toBeVisible({ timeout: 60_000 });
-  await expect(registerSubmit).toBeVisible({ timeout: 60_000 });
+  const registerHeading = page.getByRole('heading', { name: 'Loo konto' });
+  if (await registerHeading.isVisible().catch(() => false)) return;
+  await expect(page.getByRole('heading', { name: 'Logi sisse' })).toBeVisible({ timeout: 60_000 });
+  const regTab = page.getByRole('button', { name: 'Registreeru', exact: true });
+  await regTab.scrollIntoViewIfNeeded();
+  await regTab.click({ force: true });
+  await expect(registerHeading).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('button', { name: 'Loo konto', exact: true })).toBeVisible({ timeout: 60_000 });
 }
 
 async function registerAccount(page: Page, opts: { name: string; email: string; role?: 'Ostja' | 'Tootja' | 'Mõlemad' }) {
