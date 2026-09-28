@@ -332,7 +332,7 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     await tapBottomNav(page, 'Tellimused');
     await expect(page.getByRole('button', { name: 'Tühista' }).first()).toBeVisible({ timeout: 60_000 });
     await expect(page.getByLabel(/Tasumine kohapeal/).first()).toBeVisible();
-    await expect(page.locator('body')).toContainText('Ootel');
+    await expect(page.getByLabel(/Ootel/).first()).toBeVisible({ timeout: 60_000 });
     await screenshot(page, '12-orders-buyer-pending.png');
 
     // Second pending order on Mari’s bread (UI) for seller accept/decline
@@ -367,9 +367,9 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     await logout(page);
     await loginAccount(page, request, 'anna@lokal.app');
     await tapBottomNav(page, 'Tellimused');
-    await expect(page.getByText('Kinnitatud').or(page.getByText('Tagasi lükatud')).first()).toBeVisible({
-      timeout: 60_000,
-    });
+    await expect(
+      page.getByLabel(/Kinnitatud/).or(page.getByLabel(/Tagasi lükatud/)).first(),
+    ).toBeVisible({ timeout: 60_000 });
     await screenshot(page, '15-buyer-sees-updated-status.png');
 
     // Anna cancels a pending order (buyer-only customer flow)
@@ -386,7 +386,7 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     await tapBottomNav(page, 'Tellimused');
     await page.getByRole('button', { name: 'Tühista' }).first().click();
     await page.waitForTimeout(1000);
-    await expect(page.getByText('Tühistatud').first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByLabel(/Tühistatud/).first()).toBeVisible({ timeout: 60_000 });
     await screenshot(page, '16-buyer-cancelled-order.png');
   });
 });
