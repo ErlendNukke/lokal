@@ -116,11 +116,13 @@ async function openAuthFromProfile(page: Page) {
   // Guest profile tab auto-pushes AuthScreen via ProfileScreen._sync(); do not click "Logi sisse"
   // on the auth form (that submits login) when we only need the register tab.
   const authHeading = authScreenHeading(page);
-  const profileGuestLogin = page.locator('body').getByRole('button', { name: 'Logi sisse' });
-  await expect(authHeading.or(profileGuestLogin)).toBeVisible({ timeout: 90_000 });
-  if (await authHeading.isVisible().catch(() => false)) return;
-  await profileGuestLogin.click();
-  await expect(authHeading).toBeVisible({ timeout: 90_000 });
+  try {
+    await authHeading.waitFor({ state: 'visible', timeout: 90_000 });
+    return;
+  } catch {
+    await page.getByRole('button', { name: 'Logi sisse' }).click();
+    await authHeading.waitFor({ state: 'visible', timeout: 90_000 });
+  }
 }
 
 async function switchToRegisterTab(page: Page) {
