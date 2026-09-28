@@ -169,9 +169,30 @@ class _AuthScreenState extends State<AuthScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              ActionChip(label: const Text('Ostja · Anna'), onPressed: () => _fillDemo('anna@lokal.app')),
-              ActionChip(label: const Text('Tootja · Mari'), onPressed: () => _fillDemo('mari@lokal.app')),
-              ActionChip(label: const Text('Tootja · Jüri'), onPressed: () => _fillDemo('juri@lokal.app')),
+              Semantics(
+                button: true,
+                label: 'Ostja · Anna',
+                child: ActionChip(
+                  label: const Text('Ostja · Anna'),
+                  onPressed: () => _fillDemo('anna@lokal.app'),
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: 'Tootja · Mari',
+                child: ActionChip(
+                  label: const Text('Tootja · Mari'),
+                  onPressed: () => _fillDemo('mari@lokal.app'),
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: 'Tootja · Jüri',
+                child: ActionChip(
+                  label: const Text('Tootja · Jüri'),
+                  onPressed: () => _fillDemo('juri@lokal.app'),
+                ),
+              ),
             ],
           ),
         ],
