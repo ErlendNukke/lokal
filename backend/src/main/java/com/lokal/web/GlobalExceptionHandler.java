@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -26,6 +27,14 @@ public class GlobalExceptionHandler {
                 ? HttpStatus.UNAUTHORIZED
                 : HttpStatus.INTERNAL_SERVER_ERROR;
         return error(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String param = ex.getName() != null ? ex.getName() : "parameter";
+        Object value = ex.getValue();
+        String detail = value != null ? String.valueOf(value) : "invalid";
+        return error(HttpStatus.BAD_REQUEST, "Invalid value '" + detail + "' for " + param);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

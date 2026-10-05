@@ -3,6 +3,7 @@ import 'package:lokal/core/config.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/install_prompt_controller.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/copy/order_payment_copy.dart';
 import 'package:lokal/theme/app_theme.dart';
@@ -54,6 +55,7 @@ class _ProductScreenState extends State<ProductScreen> {
       );
       final reviews = await market.producerReviews(product.producer.id);
       if (!mounted) return;
+      context.read<InstallPromptController>().recordProductViewed();
       setState(() {
         _product = product;
         _reviews = reviews;
