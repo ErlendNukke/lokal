@@ -302,4 +302,13 @@ class MarketplaceApiIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Order already reviewed"));
     }
+
+    @Test
+    void malformedProductId_returns400Not500() throws Exception {
+        mvc.perform(get("/api/products/nearby"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value(containsString("id")))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
 }

@@ -5,6 +5,7 @@ import 'package:lokal/core/config.dart';
 import 'package:lokal/screens/home_shell.dart';
 import 'package:lokal/services/api_client.dart';
 import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/services/install_prompt_controller.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -34,11 +35,14 @@ Future<void> main() async {
   final auth = AuthService(api);
   await auth.bootstrap();
 
+  final installPrompt = InstallPromptController();
+
   runApp(
     MultiProvider(
       providers: [
         Provider.value(value: api),
         ChangeNotifierProvider.value(value: auth),
+        ChangeNotifierProvider.value(value: installPrompt),
         Provider(create: (_) => MarketplaceService(api)),
       ],
       child: const LokalApp(),

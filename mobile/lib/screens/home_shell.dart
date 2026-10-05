@@ -4,6 +4,7 @@ import 'package:lokal/screens/orders_screen.dart';
 import 'package:lokal/screens/producer_screen.dart';
 import 'package:lokal/screens/profile_screen.dart';
 import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/widgets/add_to_home_screen_banner.dart';
 import 'package:provider/provider.dart';
 
 class HomeShell extends StatefulWidget {
@@ -42,10 +43,16 @@ class _HomeShellState extends State<HomeShell> {
 
     return Scaffold(
       body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
-        items: items,
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AddToHomeScreenBanner(),
+          BottomNavigationBar(
+            currentIndex: _index,
+            onTap: (i) => setState(() => _index = i),
+            items: items,
+          ),
+        ],
       ),
     );
   }

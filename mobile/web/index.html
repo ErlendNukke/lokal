@@ -33,6 +33,14 @@
 
   <title>Lokal</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    window.__lokalDeferredInstall = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      window.__lokalDeferredInstall = e;
+      window.dispatchEvent(new Event('lokal-install-available'));
+    });
+  </script>
 </head>
 <body>
   <!--
