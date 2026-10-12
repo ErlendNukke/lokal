@@ -5,9 +5,11 @@ import com.lokal.repository.ProducerProfileRepository;
 import com.lokal.repository.UserRepository;
 import com.lokal.security.JwtService;
 import com.lokal.web.dto.ApiDtos.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -66,33 +68,36 @@ public class AuthService {
     }
 
     /**
-     * MVP Google login: accepts a verified client-side identity payload.
-     * Production should verify the Google ID token against Google's tokeninfo/certs endpoint.
+     * MVP Google login: demo flow only until ID tokens are verified with Google.
+     * Unverified tokens may register a new account but must not sign in to an existing user.
      */
     @Transactional
     public AuthResponse googleLogin(GoogleLoginRequest request) {
         if (request.idToken() == null || request.idToken().isBlank()) {
             throw new IllegalArgumentException("Missing Google token");
         }
-        User user = userRepository.findByEmailIgnoreCase(request.email().trim())
-                .orElseGet(() -> {
-                    UserRole role = request.role() != null ? request.role() : UserRole.BUYER;
-                    User created = User.builder()
-                            .name(request.name().trim())
-                            .email(request.email().trim().toLowerCase())
-                            .role(role)
-                            .latitude(59.4370)
-                            .longitude(24.7536)
-                            .city("Tallinn")
-                            .authProvider(AuthProvider.GOOGLE)
-                            .build();
-                    userRepository.save(created);
-                    if (role == UserRole.PRODUCER || role == UserRole.BOTH) {
-                        ensureProducerProfile(created);
-                    }
-                    return created;
-                });
-        return new AuthResponse(jwtService.generateToken(user), toUserDto(user));
+        String email = request.email().trim().toLowerCase();
+        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Google sign-in is not verified for existing accounts. Use email and password, or sign in with Google when verification is enabled."
+            );
+        }
+        UserRole role = request.role() != null ? request.role() : UserRole.BUYER;
+        User created = User.builder()
+                .name(request.name().trim())
+                .email(email)
+                .role(role)
+                .latitude(59.4370)
+                .longitude(24.7536)
+                .city("Tallinn")
+                .authProvider(AuthProvider.GOOGLE)
+                .build();
+        userRepository.save(created);
+        if (role == UserRole.PRODUCER || role == UserRole.BOTH) {
+            ensureProducerProfile(created);
+        }
+        return new AuthResponse(jwtService.generateToken(created), toUserDto(created));
     }
 
     @Transactional(readOnly = true)
