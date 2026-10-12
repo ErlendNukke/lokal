@@ -162,25 +162,36 @@ class _BrowseScreenState extends State<BrowseScreen> {
               onSubmitted: (_) => _load(),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              height: 42,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   for (final c in categoryOptions) ...[
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text('${c.emoji} ${c.label}'),
+                      child: Semantics(
+                        button: true,
+                        label: c.label,
                         selected: _category == c.key,
-                        onSelected: (_) {
-                          setState(() => _category = c.key);
-                          _load();
-                        },
-                        selectedColor: LokalColors.forest,
-                        labelStyle: TextStyle(
-                          color: _category == c.key ? Colors.white : LokalColors.ink,
-                          fontWeight: FontWeight.w600,
+                        child: ChoiceChip(
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          label: Text(
+                            '${c.emoji} ${c.label}',
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                          ),
+                          selected: _category == c.key,
+                          onSelected: (_) {
+                            setState(() => _category = c.key);
+                            _load();
+                          },
+                          selectedColor: LokalColors.forest,
+                          labelStyle: TextStyle(
+                            color: _category == c.key ? Colors.white : LokalColors.ink,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
