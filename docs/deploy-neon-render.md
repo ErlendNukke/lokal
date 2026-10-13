@@ -159,6 +159,8 @@ curl -s https://YOUR-SERVICE.onrender.com/actuator/health
 
 Expect something like: `{"status":"UP",...}`
 
+**Neon compute:** External keep-alive and Render’s health check should use `/actuator/health` only. In the `prod` profile that endpoint reports `UP` without querying Postgres, and Hikari is configured to release idle connections so Neon can suspend when nothing else is using the database. The first API request after Neon wakes from sleep may take a few extra seconds while the compute starts and the pool opens a connection.
+
 ### 3.2 Login (demo seed user)
 ```bash
 curl -s -X POST https://YOUR-SERVICE.onrender.com/api/auth/login ^
