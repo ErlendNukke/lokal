@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lokal/core/config.dart';
 import 'package:lokal/models/models.dart';
@@ -6,6 +8,7 @@ import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/services/marketplace_service.dart';
 import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/utils/prepare_image_upload.dart';
+import 'package:lokal/utils/product_location.dart';
 import 'package:lokal/widgets/product_card.dart';
 import 'package:lokal/widgets/product_network_image.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +39,15 @@ class _ProducerScreenState extends State<ProducerScreen> {
   bool _delivery = false;
   String? _photoUrl;
 
+  /// Location chosen for the product. Set by geocoding the typed address
+  /// ("Näita kaardil") or by tapping the map.
+  LatLng? _point;
+  /// Address text [_point] was geocoded for; null when the point came from a map tap.
+  String? _pointForAddress;
+  bool _pointFromTap = false;
+  bool _geocoding = false;
+  final _locationMap = MapController();
+
   @override
   void initState() {
     super.initState();
@@ -44,9 +56,20 @@ class _ProducerScreenState extends State<ProducerScreen> {
         if (mounted) setState(() {});
       });
     }
-    if (widget.isActive) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _load());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final user = context.read<AuthService>().user;
+      if (user?.latitude != null && user?.longitude != null && !_pointFromTap) {
+        setState(() {
+          if (_location.text.trim().isEmpty || _location.text == 'Tallinn') {
+            _location.text = (user!.city?.isNotEmpty ?? false) ? user.city! : AppConfig.defaultCity;
+          }
+          _point ??= LatLng(user!.latitude!, user.longitude!);
+          _pointForAddress ??= _location.text.trim();
+        });
+      }
+      if (widget.isActive) _load();
+    });
   }
 
   @override
@@ -64,6 +87,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
     _price.dispose();
     _quantity.dispose();
     _location.dispose();
+    _locationMap.dispose();
     super.dispose();
   }
 
@@ -106,9 +130,46 @@ class _ProducerScreenState extends State<ProducerScreen> {
     }
   }
 
+  /// Coordinates to send: a map tap, or a geocode of the *current* address text.
+  /// Null means "let the API geocode the typed address".
+  LatLng? get _pointToSave => productPointToSave(
+        point: _point,
+        fromTap: _pointFromTap,
+        geocodedForAddress: _pointForAddress,
+        currentAddress: _location.text,
+      );
+
+  Future<void> _showAddressOnMap() async {
+    final address = _location.text.trim();
+    if (address.isEmpty) return;
+    setState(() => _geocoding = true);
+    try {
+      final r = await context.read<MarketplaceService>().geocode(address);
+      if (!mounted) return;
+      setState(() {
+        _point = LatLng(r.latitude, r.longitude);
+        _pointForAddress = address;
+        _pointFromTap = false;
+      });
+      _locationMap.move(_point!, 15);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    } finally {
+      if (mounted) setState(() => _geocoding = false);
+    }
+  }
+
+  void _onMapTap(LatLng p) {
+    setState(() {
+      _point = p;
+      _pointFromTap = true;
+    });
+  }
+
   Future<void> _save() async {
-    final auth = context.read<AuthService>();
     setState(() => _saving = true);
+    final point = _pointToSave;
     try {
       await context.read<MarketplaceService>().createProduct({
         'name': _name.text.trim(),
@@ -117,8 +178,8 @@ class _ProducerScreenState extends State<ProducerScreen> {
         'price': double.tryParse(_price.text) ?? 5,
         'unit': unitApi(_unit),
         'quantity': double.tryParse(_quantity.text) ?? 10,
-        'latitude': auth.user?.latitude ?? AppConfig.defaultLat,
-        'longitude': auth.user?.longitude ?? AppConfig.defaultLng,
+        'latitude': point?.latitude,
+        'longitude': point?.longitude,
         'locationLabel': _location.text.trim(),
         'pickupAvailable': _pickup,
         'deliveryAvailable': _delivery,
@@ -231,7 +292,64 @@ class _ProducerScreenState extends State<ProducerScreen> {
                       keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 10),
-                    TextField(controller: _location, decoration: const InputDecoration(labelText: 'Asukoht')),
+                    TextField(
+                      controller: _location,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (_) => _showAddressOnMap(),
+                      onChanged: (_) => setState(() => _pointFromTap = false),
+                      decoration: InputDecoration(
+                        labelText: 'Asukoht',
+                        hintText: 'nt Pirita tee 26, Tallinn',
+                        suffixIcon: IconButton(
+                          tooltip: 'Näita kaardil',
+                          icon: _geocoding
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.travel_explore),
+                          onPressed: _geocoding ? null : _showAddressOnMap,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        height: 180,
+                        child: FlutterMap(
+                          mapController: _locationMap,
+                          options: MapOptions(
+                            initialCenter: _point ?? const LatLng(AppConfig.defaultLat, AppConfig.defaultLng),
+                            initialZoom: _point == null ? 11 : 13,
+                            onTap: (_, p) => _onMapTap(p),
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'ee.lokal.app',
+                            ),
+                            if (_pointToSave != null)
+                              MarkerLayer(markers: [
+                                Marker(
+                                  point: _pointToSave!,
+                                  width: 36,
+                                  height: 36,
+                                  alignment: Alignment.topCenter,
+                                  child: const Icon(Icons.location_on, color: LokalColors.forest, size: 36),
+                                ),
+                              ]),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        _pointToSave == null
+                            ? 'Aadress leitakse salvestamisel. Vajuta 🔍 või puuduta kaarti täpsustamiseks.'
+                            : 'Toode kuvatakse märgitud kohas. Puuduta kaarti, et täpsustada.',
+                        style: const TextStyle(color: LokalColors.muted, fontSize: 12),
+                      ),
+                    ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Järeletulemine'),

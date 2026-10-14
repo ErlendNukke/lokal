@@ -16,10 +16,16 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProducerProfileRepository producerProfileRepository;
+    private final GeocodingService geocodingService;
 
-    public ProductService(ProductRepository productRepository, ProducerProfileRepository producerProfileRepository) {
+    public ProductService(
+            ProductRepository productRepository,
+            ProducerProfileRepository producerProfileRepository,
+            GeocodingService geocodingService
+    ) {
         this.productRepository = productRepository;
         this.producerProfileRepository = producerProfileRepository;
+        this.geocodingService = geocodingService;
     }
 
     @Transactional(readOnly = true)
@@ -56,6 +62,7 @@ public class ProductService {
     @Transactional
     public ProductDto create(User user, ProductRequest request) {
         ProducerProfile producer = requireProducer(user);
+        double[] point = resolveLocation(request);
         Product product = Product.builder()
                 .producer(producer)
                 .name(request.name().trim())
@@ -64,8 +71,8 @@ public class ProductService {
                 .price(request.price())
                 .unit(request.unit())
                 .quantity(request.quantity())
-                .latitude(request.latitude())
-                .longitude(request.longitude())
+                .latitude(point[0])
+                .longitude(point[1])
                 .locationLabel(request.locationLabel())
                 .pickupAvailable(request.pickupAvailable() != null ? request.pickupAvailable() : true)
                 .deliveryAvailable(request.deliveryAvailable() != null ? request.deliveryAvailable() : false)
@@ -98,8 +105,9 @@ public class ProductService {
         product.setPrice(request.price());
         product.setUnit(request.unit());
         product.setQuantity(request.quantity());
-        product.setLatitude(request.latitude());
-        product.setLongitude(request.longitude());
+        double[] point = resolveLocation(request);
+        product.setLatitude(point[0]);
+        product.setLongitude(point[1]);
         product.setLocationLabel(request.locationLabel());
         if (request.pickupAvailable() != null) {
             product.setPickupAvailable(request.pickupAvailable());
@@ -207,5 +215,22 @@ public class ProductService {
             return true;
         }
         return GeoUtils.distanceKm(lat, lng, product.getLatitude(), product.getLongitude()) <= radiusKm;
+    }
+
+    /**
+     * Uses explicit coordinates when the client sent them (map tap / previewed address);
+     * otherwise geocodes the typed address. Never falls back to a default point.
+     */
+    double[] resolveLocation(ProductRequest request) {
+        if (request.latitude() != null && request.longitude() != null) {
+            return new double[] {request.latitude(), request.longitude()};
+        }
+        String label = request.locationLabel();
+        if (label == null || label.isBlank()) {
+            throw new IllegalArgumentException("Sisesta toote asukoht (aadress)");
+        }
+        return geocodingService.geocode(label)
+                .map(g -> new double[] {g.latitude(), g.longitude()})
+                .orElseThrow(() -> new IllegalArgumentException("Aadressi ei leitud: " + label.trim()));
     }
 }

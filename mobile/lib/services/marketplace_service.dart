@@ -57,6 +57,16 @@ class MarketplaceService {
     return Product.fromJson(json);
   }
 
+  /// Geocodes a typed address via the API (Nominatim behind it). Throws when not found.
+  Future<GeocodeResult> geocode(String address) async {
+    final json = await _api.request<Map<String, dynamic>>(
+      'GET',
+      '/api/producer/geocode',
+      query: {'q': address},
+    );
+    return GeocodeResult.fromJson(json);
+  }
+
   Future<void> deleteProduct(String id) async {
     await _api.request<void>('DELETE', '/api/producer/products/$id');
   }
@@ -112,4 +122,18 @@ class MarketplaceService {
     String? mimeType,
   }) =>
       _api.uploadImage(bytes, filename: filename, mimeType: mimeType);
+}
+
+class GeocodeResult {
+  const GeocodeResult(this.latitude, this.longitude, this.displayName);
+
+  factory GeocodeResult.fromJson(Map<String, dynamic> json) => GeocodeResult(
+        (json['latitude'] as num).toDouble(),
+        (json['longitude'] as num).toDouble(),
+        json['displayName'] as String?,
+      );
+
+  final double latitude;
+  final double longitude;
+  final String? displayName;
 }
