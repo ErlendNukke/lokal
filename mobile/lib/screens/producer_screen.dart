@@ -46,6 +46,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
   String? _pointForAddress;
   bool _pointFromTap = false;
   bool _geocoding = false;
+  bool _showMap = false;
   final _locationMap = MapController();
 
   @override
@@ -150,8 +151,11 @@ class _ProducerScreenState extends State<ProducerScreen> {
         _point = LatLng(r.latitude, r.longitude);
         _pointForAddress = address;
         _pointFromTap = false;
+        _showMap = true;
       });
-      _locationMap.move(_point!, 15);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _point != null) _locationMap.move(_point!, 15);
+      });
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
@@ -309,6 +313,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                         ),
                       ),
                     ),
+                    if (_showMap) ...[
                     const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
@@ -340,15 +345,24 @@ class _ProducerScreenState extends State<ProducerScreen> {
                         ),
                       ),
                     ),
+                    ],
                     const SizedBox(height: 4),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        _pointToSave == null
-                            ? 'Aadress leitakse salvestamisel. Vajuta 🔍 või puuduta kaarti täpsustamiseks.'
-                            : 'Toode kuvatakse märgitud kohas. Puuduta kaarti, et täpsustada.',
-                        style: const TextStyle(color: LokalColors.muted, fontSize: 12),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _pointToSave == null
+                                ? 'Aadress leitakse salvestamisel.'
+                                : (_showMap ? 'Puuduta kaarti, et täpsustada.' : 'Asukoht määratud.'),
+                            style: const TextStyle(color: LokalColors.muted, fontSize: 12),
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => setState(() => _showMap = !_showMap),
+                          icon: const Icon(Icons.map_outlined, size: 18),
+                          label: Text(_showMap ? 'Peida kaart' : 'Vali kaardilt'),
+                        ),
+                      ],
                     ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
