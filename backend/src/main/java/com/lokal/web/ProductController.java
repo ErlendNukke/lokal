@@ -2,6 +2,7 @@ package com.lokal.web;
 
 import com.lokal.domain.ProductCategory;
 import com.lokal.security.SecurityUtils;
+import com.lokal.service.GeocodingService;
 import com.lokal.service.ImageOptimizer;
 import com.lokal.service.ProductService;
 import com.lokal.service.StorageService;
@@ -21,12 +22,15 @@ public class ProductController {
     private final ProductService productService;
     private final StorageService storageService;
     private final ImageOptimizer imageOptimizer;
+    private final GeocodingService geocodingService;
 
     public ProductController(
             ProductService productService,
             StorageService storageService,
-            ImageOptimizer imageOptimizer
+            ImageOptimizer imageOptimizer,
+            GeocodingService geocodingService
     ) {
+        this.geocodingService = geocodingService;
         this.productService = productService;
         this.storageService = storageService;
         this.imageOptimizer = imageOptimizer;
@@ -55,6 +59,14 @@ public class ProductController {
     @GetMapping("/producer/products")
     public List<ProductDto> myProducts() {
         return productService.myProducts(SecurityUtils.currentUser());
+    }
+
+    /** Address preview for the add-product form (authenticated producers only). */
+    @GetMapping("/producer/geocode")
+    public GeocodeResponse geocode(@RequestParam String q) {
+        return geocodingService.geocode(q)
+                .map(g -> new GeocodeResponse(g.latitude(), g.longitude(), g.displayName()))
+                .orElseThrow(() -> new IllegalArgumentException("Aadressi ei leitud: " + q.trim()));
     }
 
     @PostMapping("/producer/products")

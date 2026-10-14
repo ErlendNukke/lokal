@@ -88,9 +88,9 @@ public final class ApiDtos {
             @NotNull @DecimalMin("0.01") BigDecimal price,
             @NotNull ProductUnit unit,
             @NotNull @DecimalMin("0.01") BigDecimal quantity,
-            @NotNull Double latitude,
-            @NotNull Double longitude,
-            String locationLabel,
+            @DecimalMin("-90") @DecimalMax("90") Double latitude,
+            @DecimalMin("-180") @DecimalMax("180") Double longitude,
+            @Size(max = 200) String locationLabel,
             Boolean pickupAvailable,
             Boolean deliveryAvailable,
             List<String> photoUrls
@@ -171,4 +171,6 @@ public final class ApiDtos {
     ) {}
 
     public record MessageResponse(String message) {}
+
+    public record GeocodeResponse(double latitude, double longitude, String displayName) {}
 }
