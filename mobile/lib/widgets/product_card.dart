@@ -126,7 +126,25 @@ class BrandHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Lokal', style: brandTitle(size: 34)),
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    'assets/brand/lokal-icon.png',
+                    width: 40,
+                    height: 40,
+                    semanticLabel: 'Lokal logo',
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (r) => LokalColors.brandGradient.createShader(r),
+                  child: Text('Lokal', style: brandTitle(size: 34)),
+                ),
+              ],
+            ),
             const SizedBox(height: 4),
             Text(
               subtitle,

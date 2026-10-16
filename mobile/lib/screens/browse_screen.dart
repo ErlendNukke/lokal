@@ -268,7 +268,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                               onTap: () => _openProduct(p),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: LokalColors.forest,
+                                  color: LokalColors.accent,
                                   shape: BoxShape.circle,
                                   border: Border.all(color: Colors.white, width: 2),
                                   boxShadow: const [
@@ -341,7 +341,7 @@ class _UserLocationMarker extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: const Color(0xFF2F80ED).withValues(alpha: 0.22),
+            color: LokalColors.ocean.withValues(alpha: 0.22),
             shape: BoxShape.circle,
           ),
         ),
@@ -349,7 +349,7 @@ class _UserLocationMarker extends StatelessWidget {
           width: 16,
           height: 16,
           decoration: BoxDecoration(
-            color: const Color(0xFF2F80ED),
+            color: LokalColors.ocean,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2.5),
             boxShadow: const [
