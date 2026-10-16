@@ -23,7 +23,7 @@ class AddToHomeScreenBanner extends StatelessWidget {
           : 'Lisa Lokal avaekraanile',
       child: Material(
         elevation: 6,
-        color: LokalColors.forestDark,
+        color: LokalColors.banner,
         child: SafeArea(
           top: false,
           minimum: EdgeInsets.fromLTRB(16, 12, 12, 12 + bottomInset),
@@ -61,7 +61,7 @@ class AddToHomeScreenBanner extends StatelessWidget {
                         onPressed: () => prompt.install(),
                         style: FilledButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: LokalColors.forestDark,
+                          foregroundColor: LokalColors.banner,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
                         child: const Text('Lisa'),

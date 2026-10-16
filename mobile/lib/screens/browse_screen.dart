@@ -151,7 +151,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
         bottom: false,
         child: RefreshIndicator(
           onRefresh: _refresh,
-          color: LokalColors.forest,
+          color: LokalColors.primary,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [
@@ -192,10 +192,10 @@ class _BrowseScreenState extends State<BrowseScreen> {
                               setState(() => _category = c.key);
                               _load();
                             },
-                            selectedColor: LokalColors.forest,
+                            selectedColor: LokalColors.primary,
                             labelStyle: TextStyle(
                               color: _category == c.key
-                                  ? Colors.white
+                                  ? LokalColors.onPrimary
                                   : LokalColors.ink,
                               fontWeight: FontWeight.w600,
                             ),
@@ -259,9 +259,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
                             point: LatLng(_lat, _lng),
                             radius: AppConfig.radiusKm * 1000,
                             useRadiusInMeter: true,
-                            color: LokalColors.forest.withValues(alpha: 0.12),
+                            color: LokalColors.blue.withValues(alpha: 0.10),
                             borderStrokeWidth: 1.5,
-                            borderColor: LokalColors.forest.withValues(
+                            borderColor: LokalColors.blue.withValues(
                               alpha: 0.45,
                             ),
                           ),
@@ -364,7 +364,7 @@ class _UserLocationMarker extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: LokalColors.ocean.withValues(alpha: 0.22),
+            color: LokalColors.blue.withValues(alpha: 0.22),
             shape: BoxShape.circle,
           ),
         ),
@@ -372,7 +372,7 @@ class _UserLocationMarker extends StatelessWidget {
           width: 16,
           height: 16,
           decoration: BoxDecoration(
-            color: LokalColors.ocean,
+            color: LokalColors.blue,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2.5),
             boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6)],
