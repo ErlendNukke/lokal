@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LokalColors {
-  static const forest = Color(0xFF2F5D50);
-  static const forestDark = Color(0xFF1F3F36);
-  static const forestSoft = Color(0xFF3F7A68);
-  static const beige = Color(0xFFF3EBE0);
-  static const beigeDeep = Color(0xFFE6D8C6);
-  static const cream = Color(0xFFFAF7F2);
-  static const ink = Color(0xFF2A2A2A);
-  static const muted = Color(0xFF6B6B6B);
-  static const border = Color(0xFFE2D6C6);
+  // Sampled from the app icon (low-poly pin on a green-to-blue background),
+  // darkened where needed so text stays WCAG AA on light surfaces.
+  static const forest = Color(0xFF0A6E62); // primary deep teal (white text 6.1:1)
+  static const forestDark = Color(0xFF064A44); // headings (9.6:1 on surface)
+  static const forestSoft = Color(0xFF1F8F80);
+  static const ocean = Color(0xFF0B5FA0); // icon background blue, gradient end
+  static const accent = Color(0xFFC2510A); // pin orange, AA with white text
+  static const accentBright = Color(0xFFDE600B); // decorative only
+  static const beige = Color(0xFFE6F0EE);
+  static const beigeDeep = Color(0xFFD2E4E0);
+  static const cream = Color(0xFFF5F9F8);
+  static const ink = Color(0xFF1E2A28);
+  static const muted = Color(0xFF5F6B69);
+  static const border = Color(0xFFD3E2DF);
   static const danger = Color(0xFFB44A3C);
-  static const warning = Color(0xFFC47B2D);
+  static const warning = accent;
+
+  static const brandGradient = LinearGradient(
+    colors: [forest, ocean],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 ThemeData buildLokalTheme() {
@@ -21,7 +32,9 @@ ThemeData buildLokalTheme() {
     colorScheme: ColorScheme.fromSeed(
       seedColor: LokalColors.forest,
       primary: LokalColors.forest,
-      secondary: LokalColors.warning,
+      secondary: LokalColors.accent,
+      onSecondary: Colors.white,
+      tertiary: LokalColors.ocean,
       surface: LokalColors.cream,
       brightness: Brightness.light,
     ),
@@ -85,6 +98,20 @@ ThemeData buildLokalTheme() {
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: LokalColors.forest, width: 1.5),
       ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: LokalColors.forest),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: LokalColors.forest),
+    switchTheme: SwitchThemeData(
+      trackColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? LokalColors.forest : null,
+      ),
+    ),
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: LokalColors.forestDark,
+      contentTextStyle: TextStyle(color: Colors.white),
+      actionTextColor: Color(0xFFFFB98A),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
