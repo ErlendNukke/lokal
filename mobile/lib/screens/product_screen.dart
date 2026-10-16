@@ -119,7 +119,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         child: ProductNetworkImage(imageUrl: product.photo, fit: BoxFit.cover),
                       )
                     else
-                      Container(height: 220, color: LokalColors.beigeDeep),
+                      Container(height: 220, color: LokalColors.placeholder),
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -132,7 +132,7 @@ class _ProductScreenState extends State<ProductScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 18,
-                              color: LokalColors.forestDark,
+                              color: LokalColors.heading,
                             ),
                           ),
                           const SizedBox(height: 6),

@@ -338,7 +338,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                                   width: 36,
                                   height: 36,
                                   alignment: Alignment.topCenter,
-                                  child: const Icon(Icons.location_on, color: LokalColors.forest, size: 36),
+                                  child: const Icon(Icons.location_on, color: LokalColors.primary, size: 36),
                                 ),
                               ]),
                           ],
@@ -412,7 +412,7 @@ class _ProducerScreenState extends State<ProducerScreen> {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: p.photo.isEmpty
-                      ? Container(width: 56, height: 56, color: LokalColors.beigeDeep)
+                      ? Container(width: 56, height: 56, color: LokalColors.placeholder)
                       : ProductNetworkImage(imageUrl: p.photo, width: 56, height: 56, fit: BoxFit.cover),
                 ),
                 title: Text(p.name),

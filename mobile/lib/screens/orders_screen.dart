@@ -256,7 +256,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                             Chip(
                                               label: Text(orderStatusLabel(o.status)),
                                               visualDensity: VisualDensity.compact,
-                                              backgroundColor: LokalColors.beige,
+                                              backgroundColor: LokalColors.surfaceSoft,
                                             ),
                                             if (o.message != null)
                                               Text('„${o.message}”', style: const TextStyle(fontStyle: FontStyle.italic)),

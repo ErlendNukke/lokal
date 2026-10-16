@@ -92,10 +92,10 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
 
   Widget _placeholder({double? progress}) {
     if (_compact) {
-      return const ColoredBox(color: LokalColors.beigeDeep);
+      return const ColoredBox(color: LokalColors.placeholder);
     }
     return ColoredBox(
-      color: LokalColors.beigeDeep,
+      color: LokalColors.placeholder,
       child: Center(
         child: SizedBox(
           width: 24,
@@ -103,7 +103,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
           child: CircularProgressIndicator(
             strokeWidth: 2,
             value: progress,
-            color: LokalColors.forestSoft,
+            color: LokalColors.primarySoft,
           ),
         ),
       ),
@@ -112,7 +112,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
 
   Widget _errorShell(String url, {bool timedOut = false}) {
     return Material(
-      color: LokalColors.beigeDeep,
+      color: LokalColors.placeholder,
       child: InkWell(
         onTap: () => _retry(url),
         child: Center(
@@ -134,7 +134,7 @@ class _ProductNetworkImageState extends State<ProductNetworkImage> {
                     const Text(
                       'Puuduta uuesti proovimiseks',
                       style: TextStyle(
-                        color: LokalColors.forestSoft,
+                        color: LokalColors.primarySoft,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),

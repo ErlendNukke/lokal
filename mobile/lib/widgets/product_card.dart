@@ -38,12 +38,14 @@ class ProductCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             child: Ink(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: LokalColors.card.withValues(
+                  alpha: 0.9,
+                ), // see cardTheme note
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: LokalColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: LokalColors.forest.withValues(alpha: 0.08),
+                    color: LokalColors.shadow,
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
@@ -59,7 +61,7 @@ class ProductCard extends StatelessWidget {
                     child: AspectRatio(
                       aspectRatio: 16 / 11,
                       child: product.photo.isEmpty
-                          ? Container(color: LokalColors.beigeDeep)
+                          ? Container(color: LokalColors.placeholder)
                           : ProductNetworkImage(
                               imageUrl: product.photo,
                               fit: BoxFit.cover,
@@ -86,7 +88,7 @@ class ProductCard extends StatelessWidget {
                         Text(
                           '${product.price.toStringAsFixed(2)} € / ${unitLabel(product.unit)}',
                           style: const TextStyle(
-                            color: LokalColors.forestDark,
+                            color: LokalColors.heading,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -138,11 +140,7 @@ class BrandHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                ShaderMask(
-                  blendMode: BlendMode.srcIn,
-                  shaderCallback: (r) => LokalColors.brandGradient.createShader(r),
-                  child: Text('Lokal', style: brandTitle(size: 34)),
-                ),
+                Text('Lokal', style: brandTitle(size: 34)),
               ],
             ),
             const SizedBox(height: 4),
