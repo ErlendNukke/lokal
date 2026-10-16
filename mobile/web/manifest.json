@@ -3,7 +3,7 @@
     "short_name": "Lokal",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0B8F7E",
+    "background_color": "#080808",
     "theme_color": "#0A6E62",
     "description": "Otse tegijalt. Otse koju. Local marketplace.",
     "orientation": "portrait-primary",
