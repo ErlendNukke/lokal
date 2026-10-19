@@ -35,9 +35,9 @@ test.describe('Category filter chips (WebKit)', () => {
       await waitForApp(page);
       await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 180_000 });
       await expect(page.locator('body')).toContainText(/\d+ toodet/, { timeout: 120_000 });
-      await expect(page.getByRole('button', { name: 'Kõik' })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Toit' })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Talutooted' })).toBeVisible();
+      await expect(page.getByRole('button', { name: /Kõik/ }).first()).toBeVisible();
+      await expect(page.getByRole('button', { name: /Toit/ }).first()).toBeVisible();
+      await expect(page.getByRole('button', { name: /Talutooted/ }).first()).toBeVisible();
 
       const suffix = process.env.CHIP_SCREENSHOT_SUFFIX ?? 'after';
       await page.screenshot({

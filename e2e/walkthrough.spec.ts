@@ -129,9 +129,10 @@ async function switchToRegisterTab(page: Page) {
   const registerHeading = page.getByRole('heading', { name: 'Loo konto' });
   if (await registerHeading.isVisible().catch(() => false)) return;
   await expect(page.getByRole('heading', { name: 'Logi sisse' })).toBeVisible({ timeout: 60_000 });
-  const regTab = page.getByRole('button', { name: 'Registreeru', exact: true });
-  await regTab.scrollIntoViewIfNeeded();
-  await regTab.click({ force: true });
+  // ChoiceChip can expose duplicate semantics nodes on WebKit; tap the first match.
+  const regTab = page.getByRole('button', { name: /Registreeru/ });
+  await regTab.first().scrollIntoViewIfNeeded();
+  await regTab.first().click({ force: true });
   await expect(registerHeading).toBeVisible({ timeout: 60_000 });
   await expect(page.getByRole('button', { name: 'Loo konto', exact: true })).toBeVisible({ timeout: 60_000 });
 }
@@ -149,7 +150,9 @@ async function registerAccount(page: Page, opts: { name: string; email: string; 
       await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 180_000 });
     }
   }
-  await expect(page.getByRole('button', { name: 'Loo konto' })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('button', { name: 'Loo konto', exact: true }).first()).toBeVisible({
+    timeout: 60_000,
+  });
   if (opts.role) {
     await page.getByRole('button', { name: new RegExp(`^Roll\\s`) }).click();
     await page.getByRole('menuitem', { name: opts.role }).click({ timeout: 10_000 });
