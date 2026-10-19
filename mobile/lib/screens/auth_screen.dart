@@ -84,6 +84,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 button: true,
                 label: 'Sisselogimine',
                 selected: !_register,
+                inMutuallyExclusiveGroup: true,
+                onTap: () => setState(() => _register = false),
                 child: ExcludeSemantics(
                   child: ChoiceChip(
                     label: const Text('Sisselogimine'),
@@ -100,6 +102,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 button: true,
                 label: 'Registreeru',
                 selected: _register,
+                inMutuallyExclusiveGroup: true,
+                onTap: () => setState(() => _register = true),
                 child: ExcludeSemantics(
                   child: ChoiceChip(
                     label: const Text('Registreeru'),
@@ -181,6 +185,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Semantics(
                 button: true,
                 label: 'Ostja · Anna',
+                onTap: () => _fillDemo('anna@lokal.app'),
                 child: ExcludeSemantics(
                   child: ActionChip(
                     label: const Text('Ostja · Anna'),
@@ -191,6 +196,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Semantics(
                 button: true,
                 label: 'Tootja · Mari',
+                onTap: () => _fillDemo('mari@lokal.app'),
                 child: ExcludeSemantics(
                   child: ActionChip(
                     label: const Text('Tootja · Mari'),
@@ -201,6 +207,7 @@ class _AuthScreenState extends State<AuthScreen> {
               Semantics(
                 button: true,
                 label: 'Tootja · Jüri',
+                onTap: () => _fillDemo('juri@lokal.app'),
                 child: ExcludeSemantics(
                   child: ActionChip(
                     label: const Text('Tootja · Jüri'),

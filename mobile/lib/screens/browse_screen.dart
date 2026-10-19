@@ -179,6 +179,8 @@ class _BrowseScreenState extends State<BrowseScreen> {
                           button: true,
                           label: c.label,
                           selected: _category == c.key,
+                          inMutuallyExclusiveGroup: true,
+                          onTap: () => _selectCategory(c.key),
                           child: ExcludeSemantics(
                             child: ChoiceChip(
                               materialTapTargetSize:
@@ -189,10 +191,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
                                 overflow: TextOverflow.visible,
                               ),
                               selected: _category == c.key,
-                              onSelected: (_) {
-                                setState(() => _category = c.key);
-                                _load();
-                              },
+                              onSelected: (_) => _selectCategory(c.key),
                               selectedColor: LokalColors.primary,
                               labelStyle: TextStyle(
                                 color: _category == c.key
@@ -345,6 +344,11 @@ class _BrowseScreenState extends State<BrowseScreen> {
         ),
       ),
     );
+  }
+
+  void _selectCategory(ProductCategory? key) {
+    setState(() => _category = key);
+    _load();
   }
 
   void _openProduct(Product product) {
