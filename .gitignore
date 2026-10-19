@@ -40,6 +40,3 @@ mobile/android/local.properties
 mobile/android/app/debug/
 mobile/android/app/profile/
 mobile/android/app/release/
-
-# Local screenshot output (e2e/run-category-chips-screenshots.sh etc.)
-/artifacts/
