@@ -79,22 +79,36 @@ class _AuthScreenState extends State<AuthScreen> {
           Wrap(
             spacing: 8,
             children: [
-              ChoiceChip(
-                label: const Text('Sisselogimine'),
+              Semantics(
+                button: true,
+                label: 'Sisselogimine',
                 selected: !_register,
-                onSelected: (_) => setState(() => _register = false),
-                selectedColor: LokalColors.primary,
-                labelStyle: TextStyle(
-                  color: !_register ? LokalColors.onPrimary : LokalColors.ink,
+                child: ExcludeSemantics(
+                  child: ChoiceChip(
+                    label: const Text('Sisselogimine'),
+                    selected: !_register,
+                    onSelected: (_) => setState(() => _register = false),
+                    selectedColor: LokalColors.primary,
+                    labelStyle: TextStyle(
+                      color: !_register ? LokalColors.onPrimary : LokalColors.ink,
+                    ),
+                  ),
                 ),
               ),
-              ChoiceChip(
-                label: const Text('Registreeru'),
+              Semantics(
+                button: true,
+                label: 'Registreeru',
                 selected: _register,
-                onSelected: (_) => setState(() => _register = true),
-                selectedColor: LokalColors.primary,
-                labelStyle: TextStyle(
-                  color: _register ? LokalColors.onPrimary : LokalColors.ink,
+                child: ExcludeSemantics(
+                  child: ChoiceChip(
+                    label: const Text('Registreeru'),
+                    selected: _register,
+                    onSelected: (_) => setState(() => _register = true),
+                    selectedColor: LokalColors.primary,
+                    labelStyle: TextStyle(
+                      color: _register ? LokalColors.onPrimary : LokalColors.ink,
+                    ),
+                  ),
                 ),
               ),
             ],
