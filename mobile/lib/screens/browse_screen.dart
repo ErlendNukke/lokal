@@ -175,30 +175,25 @@ class _BrowseScreenState extends State<BrowseScreen> {
                     for (final c in categoryOptions) ...[
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: Semantics(
-                          button: true,
-                          label: c.label,
+                        child: ChoiceChip(
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          label: Text(
+                            '${c.emoji} ${c.label}',
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                          ),
                           selected: _category == c.key,
-                          child: ChoiceChip(
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                            label: Text(
-                              '${c.emoji} ${c.label}',
-                              softWrap: false,
-                              overflow: TextOverflow.visible,
-                            ),
-                            selected: _category == c.key,
-                            onSelected: (_) {
-                              setState(() => _category = c.key);
-                              _load();
-                            },
-                            selectedColor: LokalColors.primary,
-                            labelStyle: TextStyle(
-                              color: _category == c.key
-                                  ? LokalColors.onPrimary
-                                  : LokalColors.ink,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          onSelected: (_) {
+                            setState(() => _category = c.key);
+                            _load();
+                          },
+                          selectedColor: LokalColors.primary,
+                          labelStyle: TextStyle(
+                            color: _category == c.key
+                                ? LokalColors.onPrimary
+                                : LokalColors.ink,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),

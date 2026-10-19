@@ -352,7 +352,7 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     await logout(page);
     await loginAccount(page, request, 'mari@lokal.app');
     await tapBottomNav(page, 'Tellimused');
-    await page.getByRole('button', { name: 'Müün', exact: true }).click();
+    await page.getByRole('radio', { name: 'Müün', exact: true }).click();
     await screenshot(page, '13-orders-seller-inbox.png');
     const acceptButtons = page.getByRole('button', { name: 'Võta vastu' });
     const declineButtons = page.getByRole('button', { name: 'Keeldu' });
