@@ -149,7 +149,9 @@ async function registerAccount(page: Page, opts: { name: string; email: string; 
       await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 180_000 });
     }
   }
-  await expect(page.getByRole('button', { name: 'Loo konto' })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('button', { name: 'Loo konto', exact: true })).toBeVisible({
+    timeout: 60_000,
+  });
   if (opts.role) {
     await page.getByRole('button', { name: new RegExp(`^Roll\\s`) }).click();
     await page.getByRole('menuitem', { name: opts.role }).click({ timeout: 10_000 });
@@ -182,8 +184,8 @@ async function loginAccount(page: Page, _request: APIRequestContext, email: stri
   await waitForApp(page);
   await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 120_000 });
   await openAuthFromProfile(page);
-  const chip = page.getByRole('button', { name: demoChip!, exact: true });
-  await chip.scrollIntoViewIfNeeded();
+  const chip = page.getByRole('button', { name: demoChip!, exact: true }).first();
+  await chip.scrollIntoViewIfNeeded({ timeout: 60_000 });
   await chip.click({ force: true });
   const loginSubmit = page.getByRole('button', { name: 'Logi sisse', exact: true });
   await Promise.all([
@@ -351,8 +353,13 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     // (e) Mari as producer: accept one, decline another
     await logout(page);
     await loginAccount(page, request, 'mari@lokal.app');
+    await expect(page.getByRole('button', { name: /^Müü/ })).toBeVisible({ timeout: 60_000 });
     await tapBottomNav(page, 'Tellimused');
-    await page.getByRole('button', { name: 'Müün', exact: true }).click();
+    const sellerOrdersView = page
+      .getByRole('button', { name: 'Müün', exact: true })
+      .or(page.getByRole('radio', { name: 'Müün', exact: true }));
+    await expect(sellerOrdersView).toBeVisible({ timeout: 120_000 });
+    await sellerOrdersView.click();
     await screenshot(page, '13-orders-seller-inbox.png');
     const acceptButtons = page.getByRole('button', { name: 'Võta vastu' });
     const declineButtons = page.getByRole('button', { name: 'Keeldu' });

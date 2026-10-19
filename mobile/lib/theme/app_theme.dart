@@ -27,24 +27,41 @@ class LokalColors {
   static const border = Color(0xFFE2DFDA);
   static const danger = Color(0xFFC0362C);
   static const warning = accent;
+  /// Text and icons on [banner] surfaces (snackbar, install prompt).
+  static const onBanner = Color(0xFFFFFFFF);
   static final shadow = const Color(0xFF000000).withValues(alpha: 0.06);
 }
 
+ColorScheme _lokalColorScheme() {
+  return ColorScheme.fromSeed(
+    seedColor: LokalColors.primary,
+    primary: LokalColors.primary,
+    onPrimary: LokalColors.onPrimary,
+    secondary: LokalColors.accent,
+    onSecondary: LokalColors.onPrimary,
+    tertiary: LokalColors.blue,
+    onTertiary: LokalColors.onPrimary,
+    surface: LokalColors.background,
+    onSurface: LokalColors.ink,
+    onSurfaceVariant: LokalColors.muted,
+    error: LokalColors.danger,
+    onError: LokalColors.onPrimary,
+    outline: LokalColors.border,
+    brightness: Brightness.light,
+  ).copyWith(
+    surfaceContainerLowest: LokalColors.background,
+    surfaceContainerLow: LokalColors.surfaceSoft,
+    surfaceContainer: LokalColors.card,
+    surfaceContainerHigh: LokalColors.card,
+    surfaceContainerHighest: LokalColors.surfaceSoft,
+  );
+}
+
 ThemeData buildLokalTheme() {
+  final scheme = _lokalColorScheme();
   final base = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: LokalColors.primary,
-      primary: LokalColors.primary,
-      onPrimary: LokalColors.onPrimary,
-      secondary: LokalColors.accent,
-      onSecondary: LokalColors.onPrimary,
-      tertiary: LokalColors.blue,
-      surface: LokalColors.background,
-      onSurface: LokalColors.ink,
-      error: LokalColors.danger,
-      brightness: Brightness.light,
-    ),
+    colorScheme: scheme,
     scaffoldBackgroundColor: LokalColors.background,
   );
 
@@ -67,8 +84,16 @@ ThemeData buildLokalTheme() {
     chipTheme: base.chipTheme.copyWith(
       selectedColor: LokalColors.primary,
       backgroundColor: LokalColors.chipBg,
+      disabledColor: LokalColors.surfaceSoft,
       side: const BorderSide(color: LokalColors.border),
-      labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w600,
+        color: LokalColors.ink,
+      ),
+      secondaryLabelStyle: const TextStyle(
+        fontWeight: FontWeight.w600,
+        color: LokalColors.onPrimary,
+      ),
       showCheckmark: false,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
     ),
@@ -125,8 +150,75 @@ ThemeData buildLokalTheme() {
     ),
     snackBarTheme: const SnackBarThemeData(
       backgroundColor: LokalColors.banner,
-      contentTextStyle: TextStyle(color: Colors.white),
-      actionTextColor: Color(0xFFFFB98A),
+      contentTextStyle: TextStyle(color: LokalColors.onBanner),
+      actionTextColor: LokalColors.primarySoft,
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: LokalColors.card,
+      surfaceTintColor: Colors.transparent,
+      titleTextStyle: brandTitle(size: 20),
+      contentTextStyle: const TextStyle(color: LokalColors.ink, height: 1.4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: LokalColors.border),
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: LokalColors.card,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: const TextStyle(color: LokalColors.ink),
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(LokalColors.card),
+        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        side: WidgetStatePropertyAll(
+          const BorderSide(color: LokalColors.border),
+        ),
+      ),
+    ),
+    menuTheme: MenuThemeData(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(LokalColors.card),
+        surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        side: WidgetStatePropertyAll(
+          const BorderSide(color: LokalColors.border),
+        ),
+      ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: LokalColors.card,
+      surfaceTintColor: Colors.transparent,
+      textStyle: const TextStyle(color: LokalColors.ink),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: LokalColors.border),
+      ),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return LokalColors.primary;
+          }
+          return LokalColors.chipBg;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return LokalColors.onPrimary;
+          }
+          return LokalColors.ink;
+        }),
+        side: WidgetStateProperty.all(
+          const BorderSide(color: LokalColors.border),
+        ),
+        textStyle: WidgetStateProperty.all(
+          const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: LokalColors.nav,
