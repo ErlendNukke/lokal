@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/widgets/privacy_policy_link.dart';
 import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
@@ -103,11 +104,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(title: const Text('Profiil')),
       body: user == null
           ? Center(
-              child: FilledButton(
-                onPressed: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AuthScreen()));
-                },
-                child: const Text('Logi sisse'),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FilledButton(
+                    onPressed: () async {
+                      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AuthScreen()));
+                    },
+                    child: const Text('Logi sisse'),
+                  ),
+                  const SizedBox(height: 8),
+                  const PrivacyPolicyLink(),
+                ],
               ),
             )
           : ListView(
@@ -166,6 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   child: const Text('Logi välja'),
                 ),
+                const SizedBox(height: 12),
+                const PrivacyPolicyLink(),
               ],
             ),
     );
