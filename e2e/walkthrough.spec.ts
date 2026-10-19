@@ -184,8 +184,8 @@ async function loginAccount(page: Page, _request: APIRequestContext, email: stri
   await waitForApp(page);
   await expect(page.getByRole('button', { name: /^Avasta/ })).toBeVisible({ timeout: 120_000 });
   await openAuthFromProfile(page);
-  const chip = page.getByRole('button', { name: demoChip!, exact: true });
-  await chip.scrollIntoViewIfNeeded();
+  const chip = page.getByRole('button', { name: demoChip!, exact: true }).first();
+  await chip.scrollIntoViewIfNeeded({ timeout: 60_000 });
   await chip.click({ force: true });
   const loginSubmit = page.getByRole('button', { name: 'Logi sisse', exact: true });
   await Promise.all([
