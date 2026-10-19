@@ -3,6 +3,7 @@ import 'package:lokal/core/config.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/theme/app_theme.dart';
+import 'package:lokal/widgets/privacy_policy_link.dart';
 import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
 
@@ -195,6 +196,8 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          const PrivacyPolicyLink(),
         ],
       ),
     );
