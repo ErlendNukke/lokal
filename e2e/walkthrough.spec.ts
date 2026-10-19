@@ -353,8 +353,13 @@ test.describe('Lokal marketplace walkthrough (iPhone 14 / WebKit)', () => {
     // (e) Mari as producer: accept one, decline another
     await logout(page);
     await loginAccount(page, request, 'mari@lokal.app');
+    await expect(page.getByRole('button', { name: /^Müü/ })).toBeVisible({ timeout: 60_000 });
     await tapBottomNav(page, 'Tellimused');
-    await page.getByRole('radio', { name: 'Müün', exact: true }).click();
+    const sellerOrdersView = page
+      .getByRole('button', { name: 'Müün', exact: true })
+      .or(page.getByRole('radio', { name: 'Müün', exact: true }));
+    await expect(sellerOrdersView).toBeVisible({ timeout: 120_000 });
+    await sellerOrdersView.click();
     await screenshot(page, '13-orders-seller-inbox.png');
     const acceptButtons = page.getByRole('button', { name: 'Võta vastu' });
     const declineButtons = page.getByRole('button', { name: 'Keeldu' });
