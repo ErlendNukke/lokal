@@ -5,7 +5,9 @@ import com.lokal.security.SecurityUtils;
 import com.lokal.service.AuthService;
 import com.lokal.web.dto.ApiDtos.*;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,5 +42,15 @@ public class AuthController {
     @PutMapping("/me")
     public UserDto updateMe(@Valid @RequestBody UpdateProfileRequest request) {
         return authService.updateProfile(SecurityUtils.currentUser(), request);
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMe() {
+        User user = SecurityUtils.currentUserOrNull();
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+        authService.deleteAccount(user);
     }
 }

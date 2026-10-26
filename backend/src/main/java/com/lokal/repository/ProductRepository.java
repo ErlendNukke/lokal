@@ -14,6 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     List<Product> findByProducerIdAndActiveTrueOrderByCreatedAtDesc(UUID producerId);
 
+    List<Product> findByProducerId(UUID producerId);
+
     @Query("""
             SELECT DISTINCT p FROM Product p
             JOIN FETCH p.producer pr

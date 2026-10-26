@@ -4,8 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 class ApiException implements Exception {
-  ApiException(this.message);
+  ApiException(this.message, {this.statusCode, this.code});
   final String message;
+  final int? statusCode;
+
+  /// Machine-readable error code from the API (e.g. `PENDING_ORDERS`), if any.
+  final String? code;
 
   @override
   String toString() => message;
@@ -57,13 +61,17 @@ class ApiClient {
 
     if (response.statusCode >= 400) {
       String message = 'Request failed (${response.statusCode})';
+      String? code;
       try {
         final json = jsonDecode(response.body);
         if (json is Map && json['error'] != null) {
           message = json['error'].toString();
         }
+        if (json is Map && json['code'] != null) {
+          code = json['code'].toString();
+        }
       } catch (_) {}
-      throw ApiException(message);
+      throw ApiException(message, statusCode: response.statusCode, code: code);
     }
 
     if (response.body.isEmpty || response.statusCode == 204) {

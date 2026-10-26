@@ -50,6 +50,10 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /** Set when the account was deleted and the row kept anonymized; tokens for it are rejected. */
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     @PrePersist
     void onCreate() {
         if (id == null) {

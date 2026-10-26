@@ -99,6 +99,10 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteAccount() async {
+    await _api.request<void>('DELETE', '/api/auth/me');
+  }
+
   Future<void> logout() async {
     _api.token = null;
     user = null;

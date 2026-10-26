@@ -1,5 +1,6 @@
 package com.lokal.web;
 
+import com.lokal.service.AccountDeletionBlockedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,6 +20,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         return error(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountDeletionBlockedException.class)
+    public ResponseEntity<Map<String, Object>> handleDeletionBlocked(AccountDeletionBlockedException ex) {
+        ResponseEntity<Map<String, Object>> response = error(ex.getStatus(), ex.getMessage());
+        response.getBody().put("code", ex.getCode());
+        return response;
     }
 
     @ExceptionHandler(ResponseStatusException.class)

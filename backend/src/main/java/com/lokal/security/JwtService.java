@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -57,10 +58,10 @@ public class JwtService {
         }
     }
 
-    public User loadUser(String token) {
-        UUID id = extractUserId(token);
-        return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    /** The token's user if it still exists and has not been deleted/anonymized. */
+    public Optional<User> findActiveUser(String token) {
+        return userRepository.findById(extractUserId(token))
+                .filter(user -> user.getDeletedAt() == null);
     }
 
     private Claims parseClaims(String token) {

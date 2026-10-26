@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,4 +33,14 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findByProducerId(@Param("producerId") UUID producerId);
 
     long countByProducerIdAndStatus(UUID producerId, OrderStatus status);
+
+    long countByBuyerIdAndStatusIn(UUID buyerId, Collection<OrderStatus> statuses);
+
+    long countByProducerIdAndStatusIn(UUID producerId, Collection<OrderStatus> statuses);
+
+    boolean existsByProductId(UUID productId);
+
+    boolean existsByBuyerId(UUID buyerId);
+
+    boolean existsByProducerId(UUID producerId);
 }
