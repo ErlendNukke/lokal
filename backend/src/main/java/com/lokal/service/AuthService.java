@@ -38,6 +38,9 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        if (request.email().trim().toLowerCase().endsWith(AccountDeletionService.DELETED_EMAIL_DOMAIN)) {
+            throw new IllegalArgumentException("Invalid email");
+        }
         if (userRepository.existsByEmailIgnoreCase(request.email())) {
             throw new IllegalArgumentException("Email already registered");
         }
@@ -64,7 +67,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmailIgnoreCase(request.email().trim())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-        if (user.getPasswordHash() == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (user.getDeletedAt() != null || user.getPasswordHash() == null || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
         return new AuthResponse(jwtService.generateToken(user), toUserDto(user));
@@ -80,6 +83,9 @@ public class AuthService {
             throw new IllegalArgumentException("Missing Google token");
         }
         String email = request.email().trim().toLowerCase();
+        if (email.endsWith(AccountDeletionService.DELETED_EMAIL_DOMAIN)) {
+            throw new IllegalArgumentException("Invalid email");
+        }
         if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,

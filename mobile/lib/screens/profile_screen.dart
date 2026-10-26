@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
+import 'package:lokal/services/api_client.dart';
 import 'package:lokal/services/auth_service.dart';
 import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/widgets/privacy_policy_link.dart';
@@ -76,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (ctx) => AlertDialog(
         title: const Text('Kustuta konto?'),
         content: const Text(
-          'See tegevus on pöördumatu. Sinu konto ja isikuandmed kustutatakse või anonüümitakse vastavalt privaatsuspoliitikale. Kui sul on ootel tellimusi, kustutamine ei õnnestu enne, kui need on lõpetatud või tühistatud.',
+          'See tegevus on pöördumatu. Sinu konto ja isikuandmed kustutatakse või anonüümitakse vastavalt privaatsuspoliitikale. Kui sul on pooleliolevaid tellimusi (ootel või kinnitatud), tuleb need enne lõpetada või tühistada.',
         ),
         actions: [
           TextButton(
@@ -108,10 +109,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Kontot ei saa kustutada'),
+          content: Text(_deleteErrorMessage(e)),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Selge'),
+            ),
+          ],
+        ),
+      );
     } finally {
       if (mounted) setState(() => _deleting = false);
     }
+  }
+
+  static String _deleteErrorMessage(Object error) {
+    final code = error is ApiException ? error.code : null;
+    switch (code) {
+      case 'PENDING_ORDERS':
+        return 'Sul on pooleliolevaid tellimusi. Tühista ootel tellimused või oota, kuni müüja need lõpetab, ja proovi siis uuesti.';
+      case 'PENDING_SELLER_ORDERS':
+        return 'Sul on pooleliolevaid müügitellimusi. Kinnita või lükka ootel tellimused tagasi ja lõpeta kinnitatud tellimused, siis proovi uuesti.';
+      case 'DEMO_ACCOUNT':
+        return 'Demokontosid ei saa kustutada. Loo oma konto, kui soovid kustutamist proovida.';
+    }
+    return 'Konto kustutamine ebaõnnestus. Kontrolli internetiühendust ja proovi hiljem uuesti.';
   }
 
   Future<void> _save() async {

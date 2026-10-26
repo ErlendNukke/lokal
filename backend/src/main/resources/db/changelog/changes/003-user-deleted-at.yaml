@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-user-deleted-at
+      author: lokal
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column: { name: deleted_at, type: timestamp }
