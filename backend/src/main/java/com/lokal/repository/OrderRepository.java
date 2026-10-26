@@ -32,4 +32,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findByProducerId(@Param("producerId") UUID producerId);
 
     long countByProducerIdAndStatus(UUID producerId, OrderStatus status);
+
+    long countByBuyerIdAndStatus(UUID buyerId, OrderStatus status);
+
+    boolean existsByBuyerId(UUID buyerId);
+
+    boolean existsByProducerId(UUID producerId);
 }

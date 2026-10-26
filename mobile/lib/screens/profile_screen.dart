@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lokal/models/models.dart';
 import 'package:lokal/screens/auth_screen.dart';
 import 'package:lokal/services/auth_service.dart';
+import 'package:lokal/theme/app_theme.dart';
 import 'package:lokal/widgets/privacy_policy_link.dart';
 import 'package:lokal/widgets/product_card.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _pickup = true;
   bool _delivery = false;
   bool _saving = false;
+  bool _deleting = false;
 
   @override
   void initState() {
@@ -66,6 +68,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _farmName.text = user.farmName ?? '';
       _role = user.role;
     });
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Kustuta konto?'),
+        content: const Text(
+          'See tegevus on pöördumatu. Sinu konto ja isikuandmed kustutatakse või anonüümitakse vastavalt privaatsuspoliitikale. Kui sul on ootel tellimusi, kustutamine ei õnnestu enne, kui need on lõpetatud või tühistatud.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Tühista'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: LokalColors.danger,
+              foregroundColor: LokalColors.onPrimary,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Kustuta konto'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    final auth = context.read<AuthService>();
+    try {
+      await auth.deleteAccount();
+      await auth.logout();
+      if (!mounted) return;
+      await Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AuthScreen()),
+        (_) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
   }
 
   Future<void> _save() async {
@@ -173,6 +219,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     setState(() {});
                   },
                   child: const Text('Logi välja'),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: _deleting ? null : _confirmDeleteAccount,
+                  style: TextButton.styleFrom(foregroundColor: LokalColors.danger),
+                  child: Text(_deleting ? 'Kustutan…' : 'Kustuta konto'),
                 ),
                 const SizedBox(height: 12),
                 const PrivacyPolicyLink(),

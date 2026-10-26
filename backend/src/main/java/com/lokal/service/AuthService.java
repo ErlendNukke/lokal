@@ -20,17 +20,20 @@ public class AuthService {
     private final ProducerProfileRepository producerProfileRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AccountDeletionService accountDeletionService;
 
     public AuthService(
             UserRepository userRepository,
             ProducerProfileRepository producerProfileRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            AccountDeletionService accountDeletionService
     ) {
         this.userRepository = userRepository;
         this.producerProfileRepository = producerProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.accountDeletionService = accountDeletionService;
     }
 
     @Transactional
@@ -103,6 +106,11 @@ public class AuthService {
     @Transactional(readOnly = true)
     public UserDto me(User user) {
         return toUserDto(user);
+    }
+
+    @Transactional
+    public void deleteAccount(User current) {
+        accountDeletionService.deleteAccount(current);
     }
 
     @Transactional

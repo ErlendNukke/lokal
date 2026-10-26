@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -54,6 +56,19 @@ public class ReviewService {
         reviewRepository.save(review);
         recalculateProducerRating(order.getProducer().getId());
         return toDto(review);
+    }
+
+    @Transactional
+    public void deleteReviewsByReviewer(UUID reviewerId) {
+        List<Review> reviews = reviewRepository.findByReviewerId(reviewerId);
+        Set<UUID> producerIds = new HashSet<>();
+        for (Review review : reviews) {
+            producerIds.add(review.getProducer().getId());
+        }
+        reviewRepository.deleteAll(reviews);
+        for (UUID producerId : producerIds) {
+            recalculateProducerRating(producerId);
+        }
     }
 
     @Transactional(readOnly = true)

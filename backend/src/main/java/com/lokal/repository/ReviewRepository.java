@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
     List<Review> findByProducerIdOrderByCreatedAtDesc(UUID producerId);
+    List<Review> findByReviewerId(UUID reviewerId);
     Optional<Review> findByOrderId(UUID orderId);
     boolean existsByOrderId(UUID orderId);
 }
