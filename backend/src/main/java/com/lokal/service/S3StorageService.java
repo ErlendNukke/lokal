@@ -12,9 +12,11 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+import java.util.Collection;
 import java.util.UUID;
 
 @Service
@@ -112,5 +114,24 @@ public class S3StorageService implements StorageService {
         }
 
         return publicBaseUrl + "/" + key;
+    }
+
+    @Override
+    public void deleteManagedUrls(Collection<String> publicUrls) {
+        if (publicUrls == null || publicUrls.isEmpty()) {
+            return;
+        }
+        for (String url : publicUrls) {
+            StorageUrlSupport.relativeKey(url, publicBaseUrl).ifPresent(key -> {
+                try {
+                    s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+                } catch (S3Exception e) {
+                    String detail = e.awsErrorDetails() != null ? e.awsErrorDetails().errorMessage() : e.getMessage();
+                    log.warn("Failed to delete S3 object {} (from URL {}): {}", key, url, detail);
+                } catch (RuntimeException e) {
+                    log.warn("Failed to delete S3 object {} (from URL {}): {}", key, url, e.toString());
+                }
+            });
+        }
     }
 }
