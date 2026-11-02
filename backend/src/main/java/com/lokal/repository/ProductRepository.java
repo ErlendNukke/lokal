@@ -40,4 +40,15 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             WHERE p.id = :id
             """)
     Optional<Product> findDetailedById(@Param("id") UUID id);
+
+    @Query("""
+            SELECT COUNT(ph) FROM ProductPhoto ph
+            WHERE ph.url = :url AND ph.product.producer.id <> :producerId
+            """)
+    long countPhotoUrlUsedByOtherProducers(@Param("url") String url, @Param("producerId") UUID producerId);
+
+    @Query("""
+            SELECT COUNT(ph) FROM ProductPhoto ph WHERE ph.url = :url
+            """)
+    long countPhotoUrlUsage(@Param("url") String url);
 }

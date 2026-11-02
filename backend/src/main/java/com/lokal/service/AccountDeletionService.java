@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.lokal.domain.ProductPhoto;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -126,25 +128,47 @@ public class AccountDeletionService {
             userRepository.delete(user);
         }
 
-        deleteStoredMediaSafely(storedMediaUrls);
+        scheduleStoredMediaDeletion(storedMediaUrls);
+    }
+
+    /** Deletes files only after the DB transaction commits, so a rollback never loses photos. */
+    private void scheduleStoredMediaDeletion(List<String> urls) {
+        if (urls.isEmpty()) {
+            return;
+        }
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    deleteStoredMediaSafely(urls);
+                }
+            });
+        } else {
+            deleteStoredMediaSafely(urls);
+        }
     }
 
     private List<String> collectStoredMediaUrls(User user, Optional<ProducerProfile> producerProfile) {
         List<String> urls = new ArrayList<>();
-        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()) {
+        // Product photo URLs are client-supplied, so never delete a file that another user also references.
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                && userRepository.countAvatarUrlUsedByOtherUsers(user.getAvatarUrl(), user.getId()) == 0
+                && productRepository.countPhotoUrlUsage(user.getAvatarUrl()) == 0) {
             urls.add(user.getAvatarUrl());
         }
         if (producerProfile.isPresent()) {
             UUID producerId = producerProfile.get().getId();
             for (Product product : productRepository.findByProducerId(producerId)) {
                 for (ProductPhoto photo : product.getPhotos()) {
-                    if (photo.getUrl() != null && !photo.getUrl().isBlank()) {
+                    if (photo.getUrl() != null && !photo.getUrl().isBlank()
+                            && productRepository.countPhotoUrlUsedByOtherProducers(photo.getUrl(), producerId) == 0
+                            && userRepository.countAvatarUrlUsedByOtherUsers(photo.getUrl(), user.getId()) == 0) {
                         urls.add(photo.getUrl());
                     }
                 }
             }
         }
-        return urls;
+        return urls.stream().distinct().toList();
     }
 
     private void deleteStoredMediaSafely(List<String> urls) {
