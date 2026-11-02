@@ -54,7 +54,7 @@ jobs:
 
   e2e-walkthrough:
     name: E2E walkthrough (WebKit)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
