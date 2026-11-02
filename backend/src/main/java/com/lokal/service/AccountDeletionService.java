@@ -9,13 +9,18 @@ import com.lokal.repository.OrderRepository;
 import com.lokal.repository.ProducerProfileRepository;
 import com.lokal.repository.ProductRepository;
 import com.lokal.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import com.lokal.domain.ProductPhoto;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,12 +34,13 @@ import java.util.UUID;
  * When order history would break foreign keys, the user and producer profile rows are anonymized
  * (scrubbed PII, login disabled, {@code deleted_at} set so old JWTs are rejected) instead of
  * hard-deleted; other parties still see a generic "Kustutatud konto" / farm label on past orders.
- * <p>
- * Uploaded photo files in object storage (R2) are not removed: {@link StorageService} has no delete
- * operation yet. Only the database references are dropped.
+ * Product and profile photo files in object storage are removed after database changes complete;
+ * storage failures are logged and do not block deletion.
  */
 @Service
 public class AccountDeletionService {
+
+    private static final Logger log = LoggerFactory.getLogger(AccountDeletionService.class);
 
     static final String DELETED_DISPLAY_NAME = "Kustutatud konto";
     static final String DELETED_FARM_NAME = "Kustutatud tootja";
@@ -51,19 +57,22 @@ public class AccountDeletionService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final ReviewService reviewService;
+    private final StorageService storageService;
 
     public AccountDeletionService(
             UserRepository userRepository,
             ProducerProfileRepository producerProfileRepository,
             ProductRepository productRepository,
             OrderRepository orderRepository,
-            ReviewService reviewService
+            ReviewService reviewService,
+            StorageService storageService
     ) {
         this.userRepository = userRepository;
         this.producerProfileRepository = producerProfileRepository;
         this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.reviewService = reviewService;
+        this.storageService = storageService;
     }
 
     @Transactional
@@ -91,6 +100,8 @@ public class AccountDeletionService {
             }
         }
 
+        List<String> storedMediaUrls = collectStoredMediaUrls(user, producerProfile);
+
         reviewService.deleteReviewsByReviewer(user.getId());
 
         for (Order order : orderRepository.findByBuyerId(user.getId())) {
@@ -113,6 +124,38 @@ public class AccountDeletionService {
             anonymizeUser(user);
         } else {
             userRepository.delete(user);
+        }
+
+        deleteStoredMediaSafely(storedMediaUrls);
+    }
+
+    private List<String> collectStoredMediaUrls(User user, Optional<ProducerProfile> producerProfile) {
+        List<String> urls = new ArrayList<>();
+        if (user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()) {
+            urls.add(user.getAvatarUrl());
+        }
+        if (producerProfile.isPresent()) {
+            UUID producerId = producerProfile.get().getId();
+            for (Product product : productRepository.findByProducerId(producerId)) {
+                for (ProductPhoto photo : product.getPhotos()) {
+                    if (photo.getUrl() != null && !photo.getUrl().isBlank()) {
+                        urls.add(photo.getUrl());
+                    }
+                }
+            }
+        }
+        return urls;
+    }
+
+    private void deleteStoredMediaSafely(List<String> urls) {
+        if (urls.isEmpty()) {
+            return;
+        }
+        try {
+            storageService.deleteManagedUrls(urls);
+        } catch (RuntimeException e) {
+            log.warn("Stored media cleanup failed during account deletion ({} URL(s)): {}",
+                    urls.size(), e.toString());
         }
     }
 
